@@ -6,7 +6,7 @@ export type MessageRole = 'user' | 'assistant';
 @Entity('chat_messages')
 export class ChatMessage {
   @PrimaryColumn({ type: 'uuid' })
-  id: string;
+  id?: string;
 
   @BeforeInsert()
   generateId() {
@@ -15,14 +15,14 @@ export class ChatMessage {
 
   @Index()
   @Column({ type: 'varchar' })
-  sessionId: string;
+  sessionId?: string;
 
   @Column({ type: 'varchar' })
-  role: MessageRole;
+  role?: MessageRole;
 
   @Column({ type: 'text' })
-  content: string;
+  content?: string;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt?: Date;
 }

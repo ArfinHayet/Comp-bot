@@ -11,6 +11,7 @@ import { ChatModule } from './chat/chat.module';
 import { RetrievalModule } from './retrieval/retrieval.module';
 import { GeminiModule } from './gemini/gemini.module';
 import { CacheModule } from './cache/cache.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { CacheModule } from './cache/cache.module';
     GeminiModule,
     CacheModule,
     ChatModule,
+    AuthModule,
   ],
 })
 export class AppModule implements OnModuleInit {

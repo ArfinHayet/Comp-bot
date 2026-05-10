@@ -10,4 +10,10 @@ export default () => ({
     topK: parseInt(process.env.TOP_K_RESULTS ?? '5', 10) || 5,
     maxToolIterations: parseInt(process.env.MAX_TOOL_ITERATIONS ?? '5', 10) || 5,
   },
+  supabase: {
+    url: process.env.SUPABASE_URL,
+    anonKey: process.env.SUPABASE_ANON_KEY,
+    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    jwtSecret: process.env.SUPABASE_JWT_SECRET,
+  },
 });

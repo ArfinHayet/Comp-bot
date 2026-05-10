@@ -4,7 +4,7 @@ import { randomUUID } from 'crypto';
 @Entity('document_chunks')
 export class DocumentChunk {
   @PrimaryColumn({ type: 'uuid' })
-  id: string;
+  id!: string;
 
   @BeforeInsert()
   generateId() {
@@ -12,13 +12,13 @@ export class DocumentChunk {
   }
 
   @Column({ type: 'text' })
-  content: string;
+  content?: string;
 
   @Column({ type: 'text' })
-  fileName: string;
+  fileName?: string;
 
   @Column({ type: 'int' })
-  chunkIndex: number;
+  chunkIndex?: number;
 
   /**
    * Float array stored as JSON text: "[0.12, -0.34, ...]".
@@ -26,8 +26,8 @@ export class DocumentChunk {
    * TypeORM has no native vector column type — this avoids driver patching.
    */
   @Column({ type: 'text' })
-  embedding: string;
+  embedding!: string;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 }

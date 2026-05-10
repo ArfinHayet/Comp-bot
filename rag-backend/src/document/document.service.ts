@@ -34,11 +34,15 @@ export class DocumentService {
     const parsed = await new PDFParse({ data: file.buffer }).getText();
     if (!parsed.text?.trim()) throw new Error('PDF contains no extractable text');
 
+    // Strip null bytes (\x00) that PDF parsers embed for icons/special chars —
+    // PostgreSQL UTF-8 encoding rejects them.
+    const cleanText = parsed.text.replace(/\x00/g, '');
+
     const splitter = new RecursiveCharacterTextSplitter({
       chunkSize: this.config.get<number>('rag.chunkSize'),
       chunkOverlap: this.config.get<number>('rag.chunkOverlap'),
     });
-    const docs = await splitter.createDocuments([parsed.text]);
+    const docs = await splitter.createDocuments([cleanText]);
     this.logger.log(`Split into ${docs.length} chunks`);
 
     const BATCH_SIZE = 10;
