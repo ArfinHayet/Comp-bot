@@ -1,5 +1,8 @@
 export default () => ({
   port: parseInt(process.env.PORT ?? '3000', 10) || 3000,
+  cors: {
+    origins: process.env.CORS_ORIGINS ?? 'http://localhost:5173',
+  },
   databaseUrl: process.env.DATABASE_URL,
   google: {
     apiKey: process.env.GOOGLE_API_KEY,

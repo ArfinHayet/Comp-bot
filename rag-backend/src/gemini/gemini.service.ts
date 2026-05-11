@@ -121,13 +121,13 @@ export class GeminiService {
   /** Embed a text string using Gemini embedding-001 via REST */
   async embedText(text: string): Promise<number[]> {
     const apiKey = this.config.get<string>('google.apiKey');
-    const response = await axios.post(
+    const response = await axios.post<{ embedding: { values: number[] } }>(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=${apiKey}`,
       {
         model: 'models/gemini-embedding-001',
         content: { parts: [{ text }] },
       },
     );
-    return response.data.embedding.values as number[];
+    return response.data.embedding.values;
   }
 }

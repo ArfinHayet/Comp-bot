@@ -3,14 +3,28 @@ import { getToken, setToken, clearToken } from './auth'
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
-const api = axios.create({ baseURL: BASE_URL })
+const api = axios.create({ baseURL: BASE_URL, withCredentials: true })
 
-// Attach JWT token to every request automatically
+// Attach JWT token from cookie to every request automatically
 api.interceptors.request.use((config) => {
   const token = getToken()
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })
+
+// On 401, only redirect to login if the user has no token (truly unauthenticated).
+// If a token exists but the server still rejects it (e.g. an expired upload),
+// let the calling code handle it via a toast instead of kicking the user out.
+api.interceptors.response.use(
+  (res) => res,
+  (error: unknown) => {
+    const status = (error as { response?: { status?: number } })?.response?.status
+    if (status === 401 && !getToken()) {
+      window.location.href = '/login'
+    }
+    return Promise.reject(error)
+  },
+)
 
 export interface Pdf {
   id: string
@@ -34,7 +48,8 @@ export const uploadPdf = (file: File, onProgress?: (pct: number) => void) => {
   const form = new FormData()
   form.append('file', file)
   return api.post<UploadResult>('/admin/upload', form, {
-    headers: { 'Content-Type': 'multipart/form-data' },
+    // Do NOT manually set Content-Type — axios sets it automatically with the
+    // correct multipart boundary when the body is FormData.
     onUploadProgress: (e) => {
       if (onProgress && e.total) onProgress(Math.round((e.loaded / e.total) * 100))
     },

@@ -47,29 +47,19 @@ export class ChatService implements OnModuleInit {
     this.logger.log('System prompt loaded');
   }
 
-  private sanitizeForPrompt(value: string, maxLength = 500): string {
-    return value
-      .slice(0, maxLength)
-      .replace(
-        /\b(ignore|disregard|forget|override|bypass|you are now|act as|new instructions?|system prompt|jailbreak)\b/gi,
-        '[removed]',
-      )
-      .replace(/[<>{}]/g, '');
-  }
-
   private async buildSystemPrompt(): Promise<string> {
     const company = await this.companyService.getActive();
+    console.log('Active company profile:', company);
     if (!company) return this.systemPrompt;
 
-    const name = this.sanitizeForPrompt(company.name, 100);
-    const description = this.sanitizeForPrompt(company.shortDescription, 500);
+    const name = company.name;
+    const description = company.shortDescription;
 
     const persona = [
-      '<company_profile>',
       `You are a support representative for ${name}.`,
       `Company overview: ${description}`,
+      `IMPORTANT: If the user asks "who are you", "what are you", "introduce yourself", "tell me about yourself", or any similar identity question, you MUST respond with exactly this: "I'm a support assistant for ${name}. ${description} How can I help you today?" — do NOT call any tool for this.`,
       `When users ask about "your company", "what you do", "your services", or anything about ${name}, you MUST call search_documents("${name}") to retrieve detailed information before answering.`,
-      '</company_profile>',
       '',
     ].join('\n');
 
@@ -92,7 +82,16 @@ export class ChatService implements OnModuleInit {
     }
 
     // ── 2.5 Pre-flight: if no relevant chunks exist, skip LLM entirely ───────
-    const hasKnowledge = await this.retrievalService.hasRelevantChunks(queryVector);
+    // Build the system prompt first so we know if a company profile is active.
+    // If one is active, the profile itself provides context (e.g. identity
+    // questions) so we skip the pre-flight chunk check in that case.
+    const [history, systemPrompt] = await Promise.all([
+      this.loadHistory(sessionId),
+      this.buildSystemPrompt(),
+    ]);
+
+    const hasCompanyProfile = systemPrompt !== this.systemPrompt;
+    const hasKnowledge = hasCompanyProfile || await this.retrievalService.hasRelevantChunks(queryVector);
     if (!hasKnowledge) {
       this.logger.log('No relevant chunks in KB — returning fallback without calling LLM');
       await this.saveTurn(sessionId, message, this.fallbackMessage);
@@ -100,10 +99,7 @@ export class ChatService implements OnModuleInit {
     }
 
     // ── 3. Load conversation history + build dynamic system prompt ───────────
-    const [history, systemPrompt] = await Promise.all([
-      this.loadHistory(sessionId),
-      this.buildSystemPrompt(),
-    ]);
+    // (already done above)
 
     // ── 4. Run agentic loop — LLM decides when/what to retrieve ─────────────
     let answer: string;

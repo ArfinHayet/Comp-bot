@@ -1,6 +1,18 @@
 const TOKEN_KEY = 'rag-auth-token'
 
-export const getToken = (): string | null => localStorage.getItem(TOKEN_KEY)
-export const setToken = (token: string): void => localStorage.setItem(TOKEN_KEY, token)
-export const clearToken = (): void => localStorage.removeItem(TOKEN_KEY)
-export const isLoggedIn = (): boolean => !!localStorage.getItem(TOKEN_KEY)
+const COOKIE_OPTS = '; path=/; SameSite=Lax'
+
+export const getToken = (): string | null => {
+  const match = document.cookie.match(new RegExp(`(?:^|; )${TOKEN_KEY}=([^;]*)`))  
+  return match ? decodeURIComponent(match[1]) : null
+}
+
+export const setToken = (token: string): void => {
+  document.cookie = `${TOKEN_KEY}=${encodeURIComponent(token)}${COOKIE_OPTS}`
+}
+
+export const clearToken = (): void => {
+  document.cookie = `${TOKEN_KEY}=; path=/; max-age=0`
+}
+
+export const isLoggedIn = (): boolean => !!getToken()

@@ -4,9 +4,24 @@ import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors();
+  const config = app.get(ConfigService);
+  const allowedOrigins = (config.get<string>('cors.origins') || 'http://localhost:5173')
+    .split(',')
+    .map((o) => o.trim());
 
-  const port = app.get(ConfigService).get<number>('port') || 3000;
+  app.enableCors({
+    origin: (origin, callback) => {
+      // Allow server-to-server / curl requests (no Origin header)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      }
+    },
+    credentials: true,
+  });
+
+  const port = config.get<number>('port') || 3000;
   await app.listen(port);
 
   console.log(`🚀  Server running on http://localhost:${port}`);
