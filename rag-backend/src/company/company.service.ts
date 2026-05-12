@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { Company } from './company.entity';
 import { CreateCompanyDto, UpdateCompanyDto } from './dto/company.dto';
 
@@ -9,6 +9,7 @@ export class CompanyService {
   constructor(
     @InjectRepository(Company)
     private readonly repo: Repository<Company>,
+    private readonly dataSource: DataSource,
   ) {}
 
   findAll(userId: string): Promise<Company[]> {
@@ -21,14 +22,24 @@ export class CompanyService {
     return c;
   }
 
-  create(dto: CreateCompanyDto, userId: string): Promise<Company> {
-    return this.repo.save(this.repo.create({ ...dto, userId }));
+  async create(dto: CreateCompanyDto, userId: string): Promise<Company> {
+    const company = await this.repo.save(this.repo.create({ ...dto, userId }));
+    await this.dataSource.query(
+      `DELETE FROM cached_answers WHERE "userId" = $1`,
+      [userId],
+    );
+    return company;
   }
 
   async update(id: string, userId: string, dto: UpdateCompanyDto): Promise<Company> {
     const c = await this.findOne(id, userId);
     Object.assign(c, dto);
-    return this.repo.save(c);
+    const saved = await this.repo.save(c);
+    await this.dataSource.query(
+      `DELETE FROM cached_answers WHERE "userId" = $1`,
+      [userId],
+    );
+    return saved;
   }
 
   async remove(id: string, userId: string): Promise<void> {

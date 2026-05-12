@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 import { GoogleGenerativeAIEmbeddings } from '@langchain/google-genai';
@@ -21,6 +21,7 @@ export class DocumentService {
     @InjectRepository(Pdf)
     private readonly pdfRepo: Repository<Pdf>,
     private readonly config: ConfigService,
+    private readonly dataSource: DataSource,
   ) {
     this.embeddings = new GoogleGenerativeAIEmbeddings({
       apiKey: this.config.get<string>('google.apiKey'),
@@ -80,6 +81,14 @@ export class DocumentService {
     }
 
     await this.chunkRepo.save(chunks);
+
+    // Invalidate semantic cache — new documents may change answers to cached questions
+    await this.dataSource.query(
+      `DELETE FROM cached_answers WHERE "userId" = $1`,
+      [userId],
+    );
+    this.logger.log(`Cache invalidated for user ${userId}`);
+
     return {
       message: 'PDF ingested successfully',
       fileName: file.originalname,
