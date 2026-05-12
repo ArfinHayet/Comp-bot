@@ -28,9 +28,14 @@ export class WidgetController {
   /** Serve the embeddable widget JavaScript file */
   @Get('widget.js')
   serveScript(@Res() res: Response) {
-    const scriptPath = path.join(__dirname, '..', 'public', 'widget.js');
+    // In development, read directly from src/ so changes are reflected immediately
+    // without waiting for a rebuild. In production (dist-only deploy), fall back to dist.
+    const srcPath = path.join(process.cwd(), 'src', 'public', 'widget.js');
+    const distPath = path.join(__dirname, '..', 'public', 'widget.js');
+    const scriptPath = fs.existsSync(srcPath) ? srcPath : distPath;
+
     res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.setHeader('Cache-Control', 'no-cache');  // prevent browser caching during dev
     res.send(fs.readFileSync(scriptPath, 'utf-8'));
   }
 
