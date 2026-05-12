@@ -7,6 +7,7 @@ import { ChatPage } from './pages/ChatPage'
 import { CompanyPage } from './pages/CompanyPage'
 import { LoginPage } from './pages/LoginPage'
 import { SignupPage } from './pages/SignupPage'
+import { EmbedPage } from './pages/EmbedPage'
 import { isLoggedIn } from './lib/auth'
 
 export default function App() {
@@ -25,6 +26,7 @@ export default function App() {
             <Route path="/pdfs" element={<PdfsPage />} />
             <Route path="/company" element={<CompanyPage />} />
             <Route path="/chat" element={<ChatPage />} />
+            <Route path="/embed" element={<EmbedPage />} />
           </Route>
         </Route>
       </Routes>

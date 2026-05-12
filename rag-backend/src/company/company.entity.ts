@@ -18,6 +18,9 @@ export class Company {
     if (!this.id) this.id = randomUUID();
   }
 
+  @Column({ type: 'uuid', nullable: true })
+  userId?: string;
+
   @Column({ type: 'text' })
   name!: string;
 

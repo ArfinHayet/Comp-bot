@@ -8,6 +8,8 @@ import { Pdf } from './document/pdf.entity';
 import { Company } from './company/company.entity';
 import { ChatMessage } from './chat/chat-message.entity';
 import { CachedAnswer } from './cache/cached-answer.entity';
+import { WidgetKey } from './widget/widget-key.entity';
+import { AllowedDomain } from './widget/allowed-domain.entity';
 import { DocumentModule } from './document/document.module';
 import { ChatModule } from './chat/chat.module';
 import { RetrievalModule } from './retrieval/retrieval.module';
@@ -15,6 +17,7 @@ import { GeminiModule } from './gemini/gemini.module';
 import { CacheModule } from './cache/cache.module';
 import { AuthModule } from './auth/auth.module';
 import { CompanyModule } from './company/company.module';
+import { WidgetModule } from './widget/widget.module';
 
 @Module({
   imports: [
@@ -29,7 +32,7 @@ import { CompanyModule } from './company/company.module';
       useFactory: (config: ConfigService) => ({
         type: 'postgres',
         url: config.get<string>('databaseUrl'),
-        entities: [DocumentChunk, Pdf, Company, ChatMessage, CachedAnswer],
+        entities: [DocumentChunk, Pdf, Company, ChatMessage, CachedAnswer, WidgetKey, AllowedDomain],
         synchronize: true,
         logging: false,
         extra: {
@@ -46,6 +49,7 @@ import { CompanyModule } from './company/company.module';
     CacheModule,
     ChatModule,
     AuthModule,
+    WidgetModule,
   ],
 })
 export class AppModule implements OnModuleInit {

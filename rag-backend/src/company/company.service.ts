@@ -11,33 +11,33 @@ export class CompanyService {
     private readonly repo: Repository<Company>,
   ) {}
 
-  findAll(): Promise<Company[]> {
-    return this.repo.find({ order: { updatedAt: 'DESC' } });
+  findAll(userId: string): Promise<Company[]> {
+    return this.repo.find({ where: { userId }, order: { updatedAt: 'DESC' } });
   }
 
-  async findOne(id: string): Promise<Company> {
-    const c = await this.repo.findOne({ where: { id } });
+  async findOne(id: string, userId: string): Promise<Company> {
+    const c = await this.repo.findOne({ where: { id, userId } });
     if (!c) throw new NotFoundException(`Company ${id} not found`);
     return c;
   }
 
-  create(dto: CreateCompanyDto): Promise<Company> {
-    return this.repo.save(this.repo.create(dto));
+  create(dto: CreateCompanyDto, userId: string): Promise<Company> {
+    return this.repo.save(this.repo.create({ ...dto, userId }));
   }
 
-  async update(id: string, dto: UpdateCompanyDto): Promise<Company> {
-    const c = await this.findOne(id);
+  async update(id: string, userId: string, dto: UpdateCompanyDto): Promise<Company> {
+    const c = await this.findOne(id, userId);
     Object.assign(c, dto);
     return this.repo.save(c);
   }
 
-  async remove(id: string): Promise<void> {
-    const c = await this.findOne(id);
+  async remove(id: string, userId: string): Promise<void> {
+    const c = await this.findOne(id, userId);
     await this.repo.remove(c);
   }
 
-  /** Returns the most-recently updated company, or null. Used by ChatService. */
-  getActive(): Promise<Company | null> {
-    return this.repo.findOne({ order: { updatedAt: 'DESC' }, where: {} });
+  /** Returns the most-recently updated company for this user, or null. Used by ChatService. */
+  getActive(userId: string): Promise<Company | null> {
+    return this.repo.findOne({ where: { userId }, order: { updatedAt: 'DESC' } });
   }
 }

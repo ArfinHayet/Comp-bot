@@ -28,13 +28,13 @@ export class DocumentService {
     });
   }
 
-  async ingestPdf(file: Express.Multer.File): Promise<{
+  async ingestPdf(file: Express.Multer.File, userId: string): Promise<{
     message: string;
     fileName: string;
     chunksCreated: number;
     pdfId: string;
   }> {
-    this.logger.log(`Ingesting: ${file.originalname}`);
+    this.logger.log(`Ingesting: ${file.originalname} for user ${userId}`);
 
     const parsed = await new PDFParse({ data: file.buffer }).getText();
     if (!parsed.text?.trim()) throw new Error('PDF contains no extractable text');
@@ -51,7 +51,7 @@ export class DocumentService {
     this.logger.log(`Split into ${docs.length} chunks`);
 
     // Create the PDF record first so chunks can reference it
-    const pdf = this.pdfRepo.create({ fileName: file.originalname });
+    const pdf = this.pdfRepo.create({ fileName: file.originalname, userId });
     await this.pdfRepo.save(pdf);
 
     const BATCH_SIZE = 10;
@@ -69,6 +69,7 @@ export class DocumentService {
             fileName: file.originalname,
             chunkIndex: i + j,
             pdfId: pdf.id,
+            userId,
             embedding: JSON.stringify(vectors[j]),
           }),
         );
@@ -87,24 +88,24 @@ export class DocumentService {
     };
   }
 
-  findAllPdfs(): Promise<Pdf[]> {
-    return this.pdfRepo.find({ order: { createdAt: 'DESC' } });
+  findAllPdfs(userId: string): Promise<Pdf[]> {
+    return this.pdfRepo.find({ where: { userId }, order: { createdAt: 'DESC' } });
   }
 
-  async findOnePdf(id: string): Promise<Pdf> {
-    const pdf = await this.pdfRepo.findOne({ where: { id } });
+  async findOnePdf(id: string, userId: string): Promise<Pdf> {
+    const pdf = await this.pdfRepo.findOne({ where: { id, userId } });
     if (!pdf) throw new NotFoundException(`PDF ${id} not found`);
     return pdf;
   }
 
-  async updatePdf(id: string, dto: UpdatePdfDto): Promise<Pdf> {
-    const pdf = await this.findOnePdf(id);
+  async updatePdf(id: string, userId: string, dto: UpdatePdfDto): Promise<Pdf> {
+    const pdf = await this.findOnePdf(id, userId);
     pdf.fileName = dto.fileName;
     return this.pdfRepo.save(pdf);
   }
 
-  async deletePdf(id: string): Promise<void> {
-    const pdf = await this.findOnePdf(id);
+  async deletePdf(id: string, userId: string): Promise<void> {
+    const pdf = await this.findOnePdf(id, userId);
     await this.pdfRepo.remove(pdf);
   }
 }

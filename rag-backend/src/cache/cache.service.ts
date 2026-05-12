@@ -15,14 +15,15 @@ export class CacheService {
     private readonly config: ConfigService,
   ) {}
 
-  async findHit(queryVector: number[]): Promise<string | null> {
+  async findHit(queryVector: number[], userId: string): Promise<string | null> {
     const rows: { answer: string; distance: string }[] =
       await this.dataSource.query(
         `SELECT answer, ("questionEmbedding"::vector <=> $1::vector) AS distance
          FROM cached_answers
+         WHERE "userId" = $2
          ORDER BY distance ASC
          LIMIT 1`,
-        [JSON.stringify(queryVector)],
+        [JSON.stringify(queryVector), userId],
       );
 
     const threshold = this.config.get<number>('rag.cacheThreshold') ?? 0.07;
@@ -42,12 +43,14 @@ export class CacheService {
     question: string,
     questionVector: number[],
     answer: string,
+    userId: string,
   ): Promise<void> {
     await this.cacheRepo.save(
       this.cacheRepo.create({
         question,
         questionEmbedding: JSON.stringify(questionVector),
         answer,
+        userId,
       }),
     );
     this.logger.log(`Cached: "${question.slice(0, 60)}"`);

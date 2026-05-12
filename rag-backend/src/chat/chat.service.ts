@@ -47,8 +47,8 @@ export class ChatService implements OnModuleInit {
     this.logger.log('System prompt loaded');
   }
 
-  private async buildSystemPrompt(): Promise<string> {
-    const company = await this.companyService.getActive();
+  private async buildSystemPrompt(userId: string): Promise<string> {
+    const company = await this.companyService.getActive(userId);
     console.log('Active company profile:', company);
     if (!company) return this.systemPrompt;
 
@@ -69,15 +69,16 @@ export class ChatService implements OnModuleInit {
   async chat(
     message: string,
     sessionId: string,
+    userId: string,
   ): Promise<{ answer: string; cached: boolean }> {
 
     // ── 1. Embed question (needed for cache lookup) ──────────────────────────
     const queryVector = await this.geminiService.embedText(message);
 
     // ── 2. Semantic cache check ──────────────────────────────────────────────
-    const cachedAnswer = await this.cacheService.findHit(queryVector);
+    const cachedAnswer = await this.cacheService.findHit(queryVector, userId);
     if (cachedAnswer) {
-      await this.saveTurn(sessionId, message, cachedAnswer);
+      await this.saveTurn(sessionId, userId, message, cachedAnswer);
       return { answer: cachedAnswer, cached: true };
     }
 
@@ -86,15 +87,15 @@ export class ChatService implements OnModuleInit {
     // If one is active, the profile itself provides context (e.g. identity
     // questions) so we skip the pre-flight chunk check in that case.
     const [history, systemPrompt] = await Promise.all([
-      this.loadHistory(sessionId),
-      this.buildSystemPrompt(),
+      this.loadHistory(sessionId, userId),
+      this.buildSystemPrompt(userId),
     ]);
 
     const hasCompanyProfile = systemPrompt !== this.systemPrompt;
-    const hasKnowledge = hasCompanyProfile || await this.retrievalService.hasRelevantChunks(queryVector);
+    const hasKnowledge = hasCompanyProfile || await this.retrievalService.hasRelevantChunks(queryVector, userId);
     if (!hasKnowledge) {
       this.logger.log('No relevant chunks in KB — returning fallback without calling LLM');
-      await this.saveTurn(sessionId, message, this.fallbackMessage);
+      await this.saveTurn(sessionId, userId, message, this.fallbackMessage);
       return { answer: this.fallbackMessage, cached: false };
     }
 
@@ -108,6 +109,7 @@ export class ChatService implements OnModuleInit {
         systemPrompt,
         history,
         message,
+        userId,
       );
     } catch (err) {
       this.logger.error('Agentic loop failed', err);
@@ -119,19 +121,19 @@ export class ChatService implements OnModuleInit {
 
     // ── 6. Persist turn + cache (in parallel, only if non-fallback) ─────────
     const tasks: Promise<unknown>[] = [
-      this.saveTurn(sessionId, message, answer),
+      this.saveTurn(sessionId, userId, message, answer),
     ];
     if (!isFallback) {
-      tasks.push(this.cacheService.save(message, queryVector, answer));
+      tasks.push(this.cacheService.save(message, queryVector, answer, userId));
     }
     await Promise.all(tasks);
 
     return { answer, cached: false };
   }
 
-  private async loadHistory(sessionId: string) {
+  private async loadHistory(sessionId: string, userId: string) {
     const msgs = await this.chatRepo.find({
-      where: { sessionId },
+      where: { sessionId, userId },
       order: { createdAt: 'ASC' },
       take: MAX_HISTORY,
     });
@@ -144,12 +146,13 @@ export class ChatService implements OnModuleInit {
 
   private async saveTurn(
     sessionId: string,
+    userId: string,
     userMsg: string,
     aiMsg: string,
   ): Promise<void> {
     await this.chatRepo.save([
-      this.chatRepo.create({ sessionId, role: 'user', content: userMsg }),
-      this.chatRepo.create({ sessionId, role: 'assistant', content: aiMsg }),
+      this.chatRepo.create({ sessionId, userId, role: 'user', content: userMsg }),
+      this.chatRepo.create({ sessionId, userId, role: 'assistant', content: aiMsg }),
     ]);
   }
 }

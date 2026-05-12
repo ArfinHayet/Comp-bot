@@ -13,6 +13,9 @@ export class DocumentChunk {
   }
 
   @Column({ type: 'uuid', nullable: true })
+  userId?: string;
+
+  @Column({ type: 'uuid', nullable: true })
   pdfId?: string;
 
   @ManyToOne(() => Pdf, (pdf) => pdf.chunks, { onDelete: 'CASCADE', nullable: true })

@@ -112,3 +112,36 @@ export const signup = (email: string, password: string): Promise<{ message: stri
 
 export const logout = (): void => clearToken()
 
+// ── Widget Keys ────────────────────────────────────────────────────────────────
+
+export interface WidgetKeyItem {
+  id: string
+  key: string
+  label: string
+  createdAt: string
+}
+
+export const listWidgetKeys = (): Promise<WidgetKeyItem[]> =>
+  api.get('/widget/keys').then((r) => r.data)
+
+export const createWidgetKey = (label: string): Promise<WidgetKeyItem> =>
+  api.post('/widget/keys', { label }).then((r) => r.data)
+
+export const deleteWidgetKey = (id: string) => api.delete(`/widget/keys/${id}`)
+
+// ── Allowed Domains ────────────────────────────────────────────────────────────
+
+export interface AllowedDomainItem {
+  id: string
+  domain: string
+  createdAt: string
+}
+
+export const listAllowedDomains = (): Promise<AllowedDomainItem[]> =>
+  api.get('/widget/domains').then((r) => r.data)
+
+export const createAllowedDomain = (domain: string): Promise<AllowedDomainItem> =>
+  api.post('/widget/domains', { domain }).then((r) => r.data)
+
+export const deleteAllowedDomain = (id: string) => api.delete(`/widget/domains/${id}`)
+

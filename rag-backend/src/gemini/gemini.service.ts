@@ -32,6 +32,7 @@ export class GeminiService {
     systemPrompt: string,
     history: GeminiMessage[],
     userMessage: string,
+    userId: string,
   ): Promise<string> {
     const apiKey = this.config.get<string>('google.apiKey')!;
     const maxIterations = this.config.get<number>('rag.maxToolIterations') ?? 10;
@@ -40,7 +41,7 @@ export class GeminiService {
     const searchDocumentsTool = tool(
       async ({ query }: { query: string }): Promise<string> => {
         this.logger.log(`Tool: search_documents("${query.slice(0, 80)}")`);
-        return this.retrievalService.searchDocuments(query);
+        return this.retrievalService.searchDocuments(query, userId);
       },
       {
         name: 'search_documents',

@@ -19,6 +19,9 @@ export class Pdf {
     if (!this.id) this.id = randomUUID();
   }
 
+  @Column({ type: 'uuid', nullable: true })
+  userId?: string;
+
   @Column({ type: 'text' })
   fileName!: string;
 

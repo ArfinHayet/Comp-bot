@@ -10,9 +10,11 @@ import {
   UseInterceptors,
   BadRequestException,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
+import type { Request } from 'express';
 import { DocumentService } from './document.service';
 import { UpdatePdfDto } from './dto/update-pdf.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -35,29 +37,37 @@ export class DocumentController {
       limits: { fileSize: 50 * 1024 * 1024 },
     }),
   )
-  async uploadPdf(@UploadedFile() file: Express.Multer.File) {
+  async uploadPdf(@UploadedFile() file: Express.Multer.File, @Req() req: Request) {
     if (!file) throw new BadRequestException('No file provided');
-    return this.documentService.ingestPdf(file);
+    const userId = (req.user as { id: string }).id;
+    return this.documentService.ingestPdf(file, userId);
   }
 
   @Get('pdfs')
   @UseGuards(JwtAuthGuard)
-  findAll() {
-    return this.documentService.findAllPdfs();
+  findAll(@Req() req: Request) {
+    const userId = (req.user as { id: string }).id;
+    return this.documentService.findAllPdfs(userId);
   }
 
   @Get('pdfs/:id')
-  findOne(@Param('id') id: string) {
-    return this.documentService.findOnePdf(id);
+  @UseGuards(JwtAuthGuard)
+  findOne(@Param('id') id: string, @Req() req: Request) {
+    const userId = (req.user as { id: string }).id;
+    return this.documentService.findOnePdf(id, userId);
   }
 
   @Patch('pdfs/:id')
-  update(@Param('id') id: string, @Body() dto: UpdatePdfDto) {
-    return this.documentService.updatePdf(id, dto);
+  @UseGuards(JwtAuthGuard)
+  update(@Param('id') id: string, @Body() dto: UpdatePdfDto, @Req() req: Request) {
+    const userId = (req.user as { id: string }).id;
+    return this.documentService.updatePdf(id, userId, dto);
   }
 
   @Delete('pdfs/:id')
-  remove(@Param('id') id: string) {
-    return this.documentService.deletePdf(id);
+  @UseGuards(JwtAuthGuard)
+  remove(@Param('id') id: string, @Req() req: Request) {
+    const userId = (req.user as { id: string }).id;
+    return this.documentService.deletePdf(id, userId);
   }
 }

@@ -18,5 +18,6 @@ import { RetrievalModule } from '../retrieval/retrieval.module';
   ],
   controllers: [ChatController],
   providers: [ChatService],
+  exports: [ChatService],
 })
 export class ChatModule {}

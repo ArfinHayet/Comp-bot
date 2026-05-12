@@ -35,8 +35,8 @@ export class RetrievalService {
    * chunks as a plain string. The result is sent back to Gemini as a
    * function_response message — it never touches the system prompt.
    */
-  async searchDocuments(query: string): Promise<string> {
-    this.logger.log(`Tool call: search_documents("${query.slice(0, 80)}")`);
+  async searchDocuments(query: string, userId: string): Promise<string> {
+    this.logger.log(`Tool call: search_documents("${query.slice(0, 80)}") for user ${userId}`);
 
     const queryVector = await this.embeddings.embedQuery(query);
     const topK = this.config.get<number>('rag.topK');
@@ -46,9 +46,10 @@ export class RetrievalService {
         `SELECT content, "fileName" AS file_name,
                 (embedding::vector <=> $1::vector) AS distance
          FROM document_chunks
+         WHERE "userId" = $3
          ORDER BY distance ASC
          LIMIT $2`,
-        [JSON.stringify(queryVector), topK],
+        [JSON.stringify(queryVector), topK, userId],
       );
 
     const relevant = rows.filter(
@@ -75,13 +76,14 @@ export class RetrievalService {
    * Used as a pre-flight guard so ChatService can short-circuit before
    * calling the LLM when the knowledge base is empty or irrelevant.
    */
-  async hasRelevantChunks(vector: number[]): Promise<boolean> {
+  async hasRelevantChunks(vector: number[], userId: string): Promise<boolean> {
     const rows: { distance: string }[] = await this.dataSource.query(
       `SELECT (embedding::vector <=> $1::vector) AS distance
        FROM document_chunks
+       WHERE "userId" = $2
        ORDER BY distance ASC
        LIMIT 1`,
-      [JSON.stringify(vector)],
+      [JSON.stringify(vector), userId],
     );
     if (rows.length === 0) return false;
     return parseFloat(rows[0].distance) < DOC_THRESHOLD;

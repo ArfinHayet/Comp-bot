@@ -17,6 +17,9 @@ export class ChatMessage {
   @Column({ type: 'varchar' })
   sessionId?: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  userId?: string;
+
   @Column({ type: 'varchar' })
   role?: MessageRole;
 

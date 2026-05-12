@@ -1,4 +1,5 @@
-import { Controller, Post, Body, BadRequestException, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, BadRequestException, UseGuards, Req } from '@nestjs/common';
+import type { Request } from 'express';
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
@@ -13,9 +14,10 @@ export class ChatController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  async chat(@Body() body: ChatRequestDto) {
+  async chat(@Body() body: ChatRequestDto, @Req() req: Request) {
     if (!body.message?.trim()) throw new BadRequestException('message is required');
     if (!body.sessionId?.trim()) throw new BadRequestException('sessionId is required');
-    return this.chatService.chat(body.message.trim(), body.sessionId.trim());
+    const userId = (req.user as { id: string }).id;
+    return this.chatService.chat(body.message.trim(), body.sessionId.trim(), userId);
   }
 }
