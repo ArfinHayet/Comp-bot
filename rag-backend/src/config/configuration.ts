@@ -22,5 +22,6 @@ export default () => ({
     anonKey: process.env.SUPABASE_ANON_KEY,
     serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
     jwtSecret: process.env.SUPABASE_JWT_SECRET,
+    imagesBucket: process.env.SUPABASE_IMAGES_BUCKET ?? 'images',
   },
 });

@@ -145,3 +145,39 @@ export const createAllowedDomain = (domain: string): Promise<AllowedDomainItem> 
 
 export const deleteAllowedDomain = (id: string) => api.delete(`/widget/domains/${id}`)
 
+// ── Images ────────────────────────────────────────────────────────────────────
+
+export interface ImageItem {
+  id: string
+  title: string
+  description: string
+  storageUrl: string
+  createdAt: string
+}
+
+export interface AnalyzeResult {
+  title: string
+  description: string
+}
+
+export const analyzeImage = (base64: string, mimeType: string): Promise<AnalyzeResult> =>
+  api.post('/images/analyze', { base64, mimeType }).then((r) => r.data)
+
+export const saveImage = (file: File, title: string, description: string): Promise<ImageItem> => {
+  const form = new FormData()
+  form.append('file', file)
+  form.append('title', title)
+  form.append('description', description)
+  return api.post('/images', form).then((r) => r.data)
+}
+
+export const listImages = (): Promise<ImageItem[]> =>
+  api.get('/images').then((r) => r.data)
+
+export const updateImage = (
+  id: string,
+  data: { title?: string; description?: string },
+): Promise<ImageItem> => api.patch(`/images/${id}`, data).then((r) => r.data)
+
+export const deleteImage = (id: string) => api.delete(`/images/${id}`)
+

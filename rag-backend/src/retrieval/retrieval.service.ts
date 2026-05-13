@@ -88,4 +88,41 @@ export class RetrievalService {
     if (rows.length === 0) return false;
     return parseFloat(rows[0].distance) < DOC_THRESHOLD;
   }
+
+  /**
+   * MCP tool executor for image knowledge base.
+   * Embeds the query, runs pgvector cosine search on the images table,
+   * and returns matching image titles + descriptions as a plain string.
+   */
+  async searchImages(query: string, userId: string): Promise<string> {
+    this.logger.log(`Tool call: search_images("${query.slice(0, 80)}") for user ${userId}`);
+
+    const queryVector = await this.embeddings.embedQuery(query);
+    const topK = this.config.get<number>('rag.topK');
+
+    const rows: { title: string; description: string; storage_url: string; distance: string }[] =
+      await this.dataSource.query(
+        `SELECT title, description, "storageUrl" AS storage_url,
+                (embedding::vector <=> $1::vector) AS distance
+         FROM images
+         WHERE "userId" = $3
+         ORDER BY distance ASC
+         LIMIT $2`,
+        [JSON.stringify(queryVector), topK, userId],
+      );
+
+    const relevant = rows.filter((r) => parseFloat(r.distance) < DOC_THRESHOLD);
+
+    if (relevant.length === 0) {
+      this.logger.log(`No relevant images found for: "${query}"`);
+      return 'No relevant images found for this query.';
+    }
+
+    return relevant
+      .map(
+        (r, i) =>
+          `[Image ${i + 1}]\nTitle: ${r.title}\nDescription: ${r.description}\nURL: ${r.storage_url}`,
+      )
+      .join('\n\n');
+  }
 }

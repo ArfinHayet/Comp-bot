@@ -8,6 +8,11 @@ import { HumanMessage, AIMessage, BaseMessage } from '@langchain/core/messages';
 import { createAgent } from 'langchain';
 import { RetrievalService } from '../retrieval/retrieval.service';
 
+const analyzeOutputSchema = z.object({
+  title: z.string().describe('A concise title (5-10 words) for the image'),
+  description: z.string().describe('A 2-3 sentence factual description of the image'),
+});
+
 /** History shape shared with ChatService */
 export interface GeminiMessage {
   role: 'user' | 'model';
@@ -37,7 +42,7 @@ export class GeminiService {
     const apiKey = this.config.get<string>('google.apiKey')!;
     const maxIterations = this.config.get<number>('rag.maxToolIterations') ?? 10;
 
-    // ── 1. Tool definition with Zod schema ───────────────────────────────────
+    // ── 1. Tool definitions ───────────────────────────────────────────────────
     const searchDocumentsTool = tool(
       async ({ query }: { query: string }): Promise<string> => {
         this.logger.log(`Tool: search_documents("${query.slice(0, 80)}")`);
@@ -46,7 +51,7 @@ export class GeminiService {
       {
         name: 'search_documents',
         description:
-          'Search the uploaded document knowledge base for content relevant to a query. ' +
+          'Search the uploaded PDF document knowledge base for content relevant to a query. ' +
           'Call this tool for EVERY factual question before answering. ' +
           'You may call it multiple times with different queries for complex questions. ' +
           'Returns the most relevant document excerpts.',
@@ -55,6 +60,25 @@ export class GeminiService {
             'A focused natural-language search query. ' +
             'For multi-part questions, break into separate targeted queries ' +
             'and call the tool once per query.',
+          ),
+        }),
+      },
+    );
+
+    const searchImagesTool = tool(
+      async ({ query }: { query: string }): Promise<string> => {
+        this.logger.log(`Tool: search_images("${query.slice(0, 80)}")`);
+        return this.retrievalService.searchImages(query, userId);
+      },
+      {
+        name: 'search_images',
+        description:
+          'Search the uploaded image knowledge base for images relevant to a query. ' +
+          'Call this tool when the question may relate to visual content, photos, or images. ' +
+          'Returns the title and description of the most relevant images.',
+        schema: z.object({
+          query: z.string().describe(
+            'A focused natural-language search query describing what visual content to look for.',
           ),
         }),
       },
@@ -75,7 +99,7 @@ export class GeminiService {
     // ── 4. Agent — LangGraph handles the tool-call loop automatically ─────────
     const agent = createAgent({
       model: llm,
-      tools: [searchDocumentsTool],
+      tools: [searchDocumentsTool, searchImagesTool],
       systemPrompt: systemPrompt,
     });
 
@@ -117,6 +141,39 @@ export class GeminiService {
     // Gemini sometimes emits literal \n (backslash-n) instead of real newlines.
     // Unescape them so markdown renderers receive proper line breaks.
     return output.replace(/\\n/g, '\n');
+  }
+
+  /**
+   * Analyze an image with Gemini Vision via LangChain and return a structured
+   * title + description. Uses withStructuredOutput for type-safe JSON parsing.
+   */
+  async analyzeImage(
+    base64: string,
+    mimeType: string,
+  ): Promise<{ title: string; description: string }> {
+    const apiKey = this.config.get<string>('google.apiKey')!;
+    const llm = new ChatGoogleGenerativeAI({
+      apiKey,
+      model: 'gemini-2.5-flash',
+    }).withStructuredOutput(analyzeOutputSchema);
+
+    const result = await llm.invoke([
+      new HumanMessage({
+        content: [
+          {
+            type: 'image_url',
+            image_url: { url: `data:${mimeType};base64,${base64}` },
+          },
+          {
+            type: 'text',
+            text: 'Generate a concise title (5-10 words) and a 2-3 sentence factual description for this image.',
+          },
+        ],
+      }),
+    ]);
+
+    this.logger.log(`Image analyzed: "${result.title}"`);
+    return result;
   }
 
   /** Embed a text string using Gemini embedding-001 via REST */

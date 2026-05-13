@@ -18,6 +18,8 @@ import { CacheModule } from './cache/cache.module';
 import { AuthModule } from './auth/auth.module';
 import { CompanyModule } from './company/company.module';
 import { WidgetModule } from './widget/widget.module';
+import { ImageRecord } from './image/image.entity';
+import { ImageModule } from './image/image.module';
 
 @Module({
   imports: [
@@ -32,7 +34,7 @@ import { WidgetModule } from './widget/widget.module';
       useFactory: (config: ConfigService) => ({
         type: 'postgres',
         url: config.get<string>('databaseUrl'),
-        entities: [DocumentChunk, Pdf, Company, ChatMessage, CachedAnswer, WidgetKey, AllowedDomain],
+        entities: [DocumentChunk, Pdf, Company, ChatMessage, CachedAnswer, WidgetKey, AllowedDomain, ImageRecord],
         synchronize: true,
         logging: false,
         extra: {
@@ -50,6 +52,7 @@ import { WidgetModule } from './widget/widget.module';
     ChatModule,
     AuthModule,
     WidgetModule,
+    ImageModule,
   ],
 })
 export class AppModule implements OnModuleInit {

@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { FileUp, Files, MessageSquare, Bot, Building2, LogOut, Code2 } from 'lucide-react'
+import { FileUp, Files, MessageSquare, Bot, Building2, LogOut, Code2, ImageUp, Images } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Toaster } from '@/components/ui/sonner'
 import { Separator } from '@/components/ui/separator'
@@ -7,11 +7,13 @@ import { Button } from '@/components/ui/button'
 import { logout } from '@/lib/api'
 
 const navItems = [
-  { to: '/upload',  icon: FileUp,        label: 'Upload PDF' },
-  { to: '/pdfs',    icon: Files,         label: 'Manage PDFs' },
-  { to: '/company', icon: Building2,     label: 'Company' },
-  { to: '/chat',    icon: MessageSquare, label: 'Chat' },
-  { to: '/embed',   icon: Code2,         label: 'Embed Widget' },
+  { to: '/upload',         icon: FileUp,        label: 'Upload PDF' },
+  { to: '/pdfs',           icon: Files,         label: 'Manage PDFs' },
+  { to: '/images/upload',  icon: ImageUp,       label: 'Upload Image' },
+  { to: '/images',         icon: Images,        label: 'Images' },
+  { to: '/company',        icon: Building2,     label: 'Company' },
+  { to: '/chat',           icon: MessageSquare, label: 'Chat' },
+  { to: '/embed',          icon: Code2,         label: 'Embed Widget' },
 ]
 
 export function AppLayout() {
