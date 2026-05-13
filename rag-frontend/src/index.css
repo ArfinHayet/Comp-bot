@@ -30,9 +30,8 @@
 
   --rm-trip-state-success: #16a34a;
   --rm-trip-state-error: #dc2626;
-
-  --rm-trip-font-heading: "Poppins", sans-serif;
-  --rm-trip-font-body: "Inter", sans-serif;
+  --rm-trip-font-heading: "Geist", sans-serif;
+  --rm-trip-font-body: "Manrope", sans-serif;
 
   --rm-trip-h1: 2.25rem;
   --rm-trip-h2: 1.75rem;
@@ -112,6 +111,11 @@
 }
 .bg-rm-trip-warning {
   background-color: var(--rm-trip-state-warning);
+}
+
+body,
+html {
+  font-family: var(--rm-trip-font-body) !important;
 }
 
 .font-rm-trip-heading {

@@ -99,8 +99,6 @@ export function ChatPage() {
           --shadow-brand: 0 4px 20px rgba(37,99,235,0.22);
         }
 
-        .chat-page { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-
         /* Header */
         .chat-header {
           background: rgba(255,255,255,0.92);
