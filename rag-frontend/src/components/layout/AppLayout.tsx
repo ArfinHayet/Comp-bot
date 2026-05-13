@@ -8,7 +8,7 @@ import { logout } from "@/lib/api";
 const navItems = [
   { to: "/upload", icon: FileUp, label: "Upload Knowledge" },
   { to: "/pdfs", icon: Files, label: "Manage PDFs" },
-  { to: "/images/upload", icon: ImageUp, label: "Upload Image" },
+  // { to: "/images/upload", icon: ImageUp, label: "Upload Image" },
   { to: "/images", icon: Images, label: "Images" },
   { to: "/company", icon: Building2, label: "Company" },
   { to: "/chat", icon: MessageSquare, label: "Chat" },
