@@ -1,17 +1,6 @@
-import { useEffect, useState } from 'react'
-import { toast } from 'sonner'
-import { Copy, Plus, Trash2, Globe, Key } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Copy, Plus, Trash2, Globe, Key, Code2 } from "lucide-react";
 import {
   listWidgetKeys,
   createWidgetKey,
@@ -21,245 +10,282 @@ import {
   deleteAllowedDomain,
   type WidgetKeyItem,
   type AllowedDomainItem,
-} from '@/lib/api'
+} from "@/lib/api";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export function EmbedPage() {
-  const [keys, setKeys] = useState<WidgetKeyItem[]>([])
-  const [domains, setDomains] = useState<AllowedDomainItem[]>([])
-  const [newLabel, setNewLabel] = useState('')
-  const [newDomain, setNewDomain] = useState('')
-  const [loadingKeys, setLoadingKeys] = useState(true)
-  const [loadingDomains, setLoadingDomains] = useState(true)
+  const [keys, setKeys] = useState<WidgetKeyItem[]>([]);
+  const [domains, setDomains] = useState<AllowedDomainItem[]>([]);
+  const [newLabel, setNewLabel] = useState("");
+  const [newDomain, setNewDomain] = useState("");
+  const [loadingKeys, setLoadingKeys] = useState(true);
+  const [loadingDomains, setLoadingDomains] = useState(true);
 
   useEffect(() => {
     listWidgetKeys()
       .then(setKeys)
-      .catch(() => toast.error('Failed to load widget keys'))
-      .finally(() => setLoadingKeys(false))
-
+      .catch(() => toast.error("Failed to load widget keys"))
+      .finally(() => setLoadingKeys(false));
     listAllowedDomains()
       .then(setDomains)
-      .catch(() => toast.error('Failed to load allowed domains'))
-      .finally(() => setLoadingDomains(false))
-  }, [])
-
-  // ── Widget Keys ──────────────────────────────────────────────────────────────
+      .catch(() => toast.error("Failed to load allowed domains"))
+      .finally(() => setLoadingDomains(false));
+  }, []);
 
   const handleCreateKey = async () => {
-    const label = newLabel.trim() || 'My Widget'
+    const label = newLabel.trim() || "My Widget";
     try {
-      const created = await createWidgetKey(label)
-      setKeys((prev) => [created, ...prev])
-      setNewLabel('')
-      toast.success('Widget key created')
+      const created = await createWidgetKey(label);
+      setKeys((prev) => [created, ...prev]);
+      setNewLabel("");
+      toast.success("Widget key created");
     } catch {
-      toast.error('Failed to create widget key')
+      toast.error("Failed to create widget key");
     }
-  }
+  };
 
   const handleDeleteKey = async (id: string) => {
     try {
-      await deleteWidgetKey(id)
-      setKeys((prev) => prev.filter((k) => k.id !== id))
-      toast.success('Widget key deleted')
+      await deleteWidgetKey(id);
+      setKeys((prev) => prev.filter((k) => k.id !== id));
+      toast.success("Widget key deleted");
     } catch {
-      toast.error('Failed to delete widget key')
+      toast.error("Failed to delete widget key");
     }
-  }
+  };
 
   const copySnippet = (key: string) => {
-    const snippet = `<script src="${API_URL}/widget.js" data-key="${key}" data-api="${API_URL}"></script>`
+    const snippet = `<script src="${API_URL}/widget.js" data-key="${key}" data-api="${API_URL}"></script>`;
     navigator.clipboard.writeText(snippet).then(
-      () => toast.success('Snippet copied to clipboard'),
-      () => toast.error('Failed to copy'),
-    )
-  }
-
-  // ── Allowed Domains ──────────────────────────────────────────────────────────
+      () => toast.success("Snippet copied to clipboard"),
+      () => toast.error("Failed to copy"),
+    );
+  };
 
   const handleCreateDomain = async () => {
-    const domain = newDomain.trim()
-    if (!domain) return
+    const domain = newDomain.trim();
+    if (!domain) return;
     try {
-      const created = await createAllowedDomain(domain)
-      setDomains((prev) => [created, ...prev])
-      setNewDomain('')
-      toast.success('Domain added')
+      const created = await createAllowedDomain(domain);
+      setDomains((prev) => [created, ...prev]);
+      setNewDomain("");
+      toast.success("Domain added");
     } catch {
-      toast.error('Failed to add domain')
+      toast.error("Failed to add domain");
     }
-  }
+  };
 
   const handleDeleteDomain = async (id: string) => {
     try {
-      await deleteAllowedDomain(id)
-      setDomains((prev) => prev.filter((d) => d.id !== id))
-      toast.success('Domain removed')
+      await deleteAllowedDomain(id);
+      setDomains((prev) => prev.filter((d) => d.id !== id));
+      toast.success("Domain removed");
     } catch {
-      toast.error('Failed to remove domain')
+      toast.error("Failed to remove domain");
     }
-  }
+  };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold">Embed Widget</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Generate a widget key and whitelist your domains to embed the chat widget on external sites.
-          Localhost is always allowed for development.
-        </p>
-      </div>
-
-      {/* Widget Keys Card */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Key className="h-4 w-4" />
-            Widget Keys
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Input
-              placeholder="Label (e.g. My Website)"
-              value={newLabel}
-              onChange={(e) => setNewLabel(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleCreateKey()}
-              className="flex-1"
-            />
-            <Button onClick={handleCreateKey}>
-              <Plus className="h-4 w-4 mr-1" />
-              Create
-            </Button>
+    <div className="min-h-screen bg-rm-trip-surface px-4 py-10 sm:px-8">
+      <div className="mx-auto space-y-6">
+        {/* ── Page header ── */}
+        <div className="mb-8">
+          <div className="inline-flex items-center gap-2 bg-rm-trip-brand/10 text-rm-trip-brand text-xs font-semibold px-3 py-1 rounded-rm-trip-pill mb-3 uppercase tracking-wider">
+            Embed
           </div>
-
-          {loadingKeys ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
-          ) : keys.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No widget keys yet. Create one above.</p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Label</TableHead>
-                  <TableHead>Key</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead className="w-[90px]">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {keys.map((k) => (
-                  <TableRow key={k.id}>
-                    <TableCell className="font-medium">{k.label}</TableCell>
-                    <TableCell>
-                      <code className="text-xs bg-muted px-1.5 py-0.5 rounded">{k.key}</code>
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {new Date(k.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          title="Copy embed snippet"
-                          onClick={() => copySnippet(k.key)}
-                        >
-                          <Copy className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          title="Delete key"
-                          onClick={() => handleDeleteKey(k.id)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-
-          {keys.length > 0 && (
-            <div className="rounded-md bg-muted p-3">
-              <p className="text-xs font-medium mb-1.5">Embed snippet (click copy icon on any key):</p>
-              <pre className="text-xs overflow-x-auto whitespace-pre-wrap break-all">
-                {`<script src="${API_URL}/widget.js"\n  data-key="YOUR_KEY"\n  data-api="${API_URL}">\n</script>`}
-              </pre>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Allowed Domains Card */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Globe className="h-4 w-4" />
-            Allowed Domains
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Add the exact origin of each site that may embed your widget (e.g.{' '}
-            <code className="text-xs bg-muted px-1 rounded">https://example.com</code>).
-            Localhost is always allowed automatically.
+          <h1 className="font-rm-trip-heading text-rm-trip-h2 font-bold text-rm-trip-text mb-2">Widget Settings</h1>
+          <p className="text-rm-trip-text-muted text-rm-trip-body-sm leading-relaxed">
+            Generate a widget key and whitelist your domains to embed the chat widget on external sites. Localhost is
+            always allowed for development.
           </p>
-          <div className="flex gap-2">
-            <Input
-              placeholder="https://example.com"
-              value={newDomain}
-              onChange={(e) => setNewDomain(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleCreateDomain()}
-              className="flex-1"
-            />
-            <Button onClick={handleCreateDomain}>
-              <Plus className="h-4 w-4 mr-1" />
-              Add
-            </Button>
+        </div>
+
+        {/* ── Widget Keys ── */}
+        <div className="bg-white rounded-rm-trip-smooth shadow-rm-trip-card border border-gray-100 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+            <div className="h-7 w-7 rounded-lg bg-rm-trip-brand/10 flex items-center justify-center">
+              <Key className="h-3.5 w-3.5 text-rm-trip-brand" />
+            </div>
+            <h2 className="font-rm-trip-heading font-semibold text-rm-trip-text text-sm">Widget Keys</h2>
           </div>
 
-          {loadingDomains ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
-          ) : domains.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No domains whitelisted yet.</p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Domain</TableHead>
-                  <TableHead>Added</TableHead>
-                  <TableHead className="w-[60px]" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {domains.map((d) => (
-                  <TableRow key={d.id}>
-                    <TableCell>{d.domain}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {new Date(d.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteDomain(d.id)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+          <div className="p-6 space-y-5">
+            {/* Create row */}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Label (e.g. My Website)"
+                value={newLabel}
+                onChange={(e) => setNewLabel(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleCreateKey()}
+                className="flex-1 px-4 py-2.5 border border-gray-200 rounded-rm-trip-smooth text-sm text-rm-trip-text placeholder:text-gray-400 focus-rm-trip-highlight bg-gray-50 focus:bg-white transition-colors duration-150 outline-none"
+              />
+              <button
+                onClick={handleCreateKey}
+                className="flex items-center gap-1.5 bg-rm-trip-brand hover:bg-rm-trip-brand-dark text-white font-semibold py-2.5 px-4 rounded-rm-trip-smooth shadow-rm-trip-card transition-all duration-150 text-sm"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Create
+              </button>
+            </div>
+
+            {/* Table */}
+            {loadingKeys ? (
+              <p className="text-sm text-rm-trip-text-muted">Loading…</p>
+            ) : keys.length === 0 ? (
+              <p className="text-sm text-rm-trip-text-muted">No widget keys yet. Create one above.</p>
+            ) : (
+              <div className="rounded-rm-trip-smooth border border-gray-100 overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-100">
+                      <th className="text-left px-4 py-2.5 text-xs font-semibold text-rm-trip-text-muted uppercase tracking-wide">
+                        Label
+                      </th>
+                      <th className="text-left px-4 py-2.5 text-xs font-semibold text-rm-trip-text-muted uppercase tracking-wide">
+                        Key
+                      </th>
+                      <th className="text-left px-4 py-2.5 text-xs font-semibold text-rm-trip-text-muted uppercase tracking-wide">
+                        Created
+                      </th>
+                      <th className="w-20 px-4 py-2.5" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {keys.map((k, i) => (
+                      <tr key={k.id} className={i !== keys.length - 1 ? "border-b border-gray-50" : ""}>
+                        <td className="px-4 py-3 font-medium text-rm-trip-text text-sm">{k.label}</td>
+                        <td className="px-4 py-3">
+                          <code className="text-xs bg-rm-trip-brand/8 text-rm-trip-brand px-2 py-0.5 rounded-md font-mono">
+                            {k.key}
+                          </code>
+                        </td>
+                        <td className="px-4 py-3 text-xs text-rm-trip-text-muted">
+                          {new Date(k.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex gap-1 justify-end">
+                            <button
+                              title="Copy embed snippet"
+                              onClick={() => copySnippet(k.key)}
+                              className="h-7 w-7 flex items-center justify-center rounded-lg text-rm-trip-text-muted hover:text-rm-trip-brand hover:bg-rm-trip-brand/8 transition-all duration-150"
+                            >
+                              <Copy className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              title="Delete key"
+                              onClick={() => handleDeleteKey(k.id)}
+                              className="h-7 w-7 flex items-center justify-center rounded-lg text-rm-trip-text-muted hover:text-rm-trip-state-error hover:bg-red-50 transition-all duration-150"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Snippet preview */}
+            {keys.length > 0 && (
+              <div className="rounded-rm-trip-smooth bg-gray-50 border border-gray-100 p-4">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Code2 className="h-3.5 w-3.5 text-rm-trip-text-muted" />
+                  <p className="text-xs font-semibold text-rm-trip-text-muted">
+                    Embed snippet — click the copy icon on any key
+                  </p>
+                </div>
+                <pre className="text-xs text-rm-trip-text font-mono overflow-x-auto whitespace-pre-wrap break-all leading-relaxed">
+                  {`<script src="${API_URL}/widget.js"\n  data-key="YOUR_KEY"\n  data-api="${API_URL}">\n</script>`}
+                </pre>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Allowed Domains ── */}
+        <div className="bg-white rounded-rm-trip-smooth shadow-rm-trip-card border border-gray-100 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+            <div className="h-7 w-7 rounded-lg bg-rm-trip-brand/10 flex items-center justify-center">
+              <Globe className="h-3.5 w-3.5 text-rm-trip-brand" />
+            </div>
+            <h2 className="font-rm-trip-heading font-semibold text-rm-trip-text text-sm">Allowed Domains</h2>
+          </div>
+
+          <div className="p-6 space-y-5">
+            <p className="text-sm text-rm-trip-text-muted leading-relaxed">
+              Add the exact origin of each site that may embed your widget (e.g.{" "}
+              <code className="text-xs bg-rm-trip-brand/8 text-rm-trip-brand px-1.5 py-0.5 rounded-md font-mono">
+                https://example.com
+              </code>
+              ). Localhost is always allowed automatically.
+            </p>
+
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="https://example.com"
+                value={newDomain}
+                onChange={(e) => setNewDomain(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleCreateDomain()}
+                className="flex-1 px-4 py-2.5 border border-gray-200 rounded-rm-trip-smooth text-sm text-rm-trip-text placeholder:text-gray-400 focus-rm-trip-highlight bg-gray-50 focus:bg-white transition-colors duration-150 outline-none"
+              />
+              <button
+                onClick={handleCreateDomain}
+                className="flex items-center gap-1.5 bg-rm-trip-brand hover:bg-rm-trip-brand-dark text-white font-semibold py-2.5 px-4 rounded-rm-trip-smooth shadow-rm-trip-card transition-all duration-150 text-sm"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Add
+              </button>
+            </div>
+
+            {loadingDomains ? (
+              <p className="text-sm text-rm-trip-text-muted">Loading…</p>
+            ) : domains.length === 0 ? (
+              <p className="text-sm text-rm-trip-text-muted">No domains whitelisted yet.</p>
+            ) : (
+              <div className="rounded-rm-trip-smooth border border-gray-100 overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-100">
+                      <th className="text-left px-4 py-2.5 text-xs font-semibold text-rm-trip-text-muted uppercase tracking-wide">
+                        Domain
+                      </th>
+                      <th className="text-left px-4 py-2.5 text-xs font-semibold text-rm-trip-text-muted uppercase tracking-wide">
+                        Added
+                      </th>
+                      <th className="w-12 px-4 py-2.5" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {domains.map((d, i) => (
+                      <tr key={d.id} className={i !== domains.length - 1 ? "border-b border-gray-50" : ""}>
+                        <td className="px-4 py-3 text-rm-trip-text font-medium text-sm">{d.domain}</td>
+                        <td className="px-4 py-3 text-xs text-rm-trip-text-muted">
+                          {new Date(d.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex justify-end">
+                            <button
+                              onClick={() => handleDeleteDomain(d.id)}
+                              className="h-7 w-7 flex items-center justify-center rounded-lg text-rm-trip-text-muted hover:text-rm-trip-state-error hover:bg-red-50 transition-all duration-150"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
-  )
+  );
 }

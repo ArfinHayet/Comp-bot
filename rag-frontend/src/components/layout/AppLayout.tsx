@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { logout } from "@/lib/api";
 
 const navItems = [
-  { to: "/upload", icon: FileUp, label: "Upload PDF" },
+  { to: "/upload", icon: FileUp, label: "Upload Knowledge" },
   { to: "/pdfs", icon: Files, label: "Manage PDFs" },
   { to: "/images/upload", icon: ImageUp, label: "Upload Image" },
   { to: "/images", icon: Images, label: "Images" },
