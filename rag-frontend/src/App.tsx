@@ -7,6 +7,9 @@ import { ChatPage } from './pages/ChatPage'
 import { CompanyPage } from './pages/CompanyPage'
 import { LoginPage } from './pages/LoginPage'
 import { SignupPage } from './pages/SignupPage'
+import { EmbedPage } from './pages/EmbedPage'
+import { ImageUploadPage } from './pages/ImageUploadPage'
+import { ImagesPage } from './pages/ImagesPage'
 import { isLoggedIn } from './lib/auth'
 
 export default function App() {
@@ -23,8 +26,11 @@ export default function App() {
             <Route index element={<Navigate to={isLoggedIn() ? '/chat' : '/login'} replace />} />
             <Route path="/upload" element={<UploadPage />} />
             <Route path="/pdfs" element={<PdfsPage />} />
+            <Route path="/images/upload" element={<ImageUploadPage />} />
+            <Route path="/images" element={<ImagesPage />} />
             <Route path="/company" element={<CompanyPage />} />
             <Route path="/chat" element={<ChatPage />} />
+            <Route path="/embed" element={<EmbedPage />} />
           </Route>
         </Route>
       </Routes>

@@ -3,18 +3,23 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import configuration from './config/configuration';
-import { DocumentChunk } from './document/document-chunk.entity';
-import { Pdf } from './document/pdf.entity';
-import { Company } from './company/company.entity';
-import { ChatMessage } from './chat/chat-message.entity';
-import { CachedAnswer } from './cache/cached-answer.entity';
-import { DocumentModule } from './document/document.module';
-import { ChatModule } from './chat/chat.module';
-import { RetrievalModule } from './retrieval/retrieval.module';
-import { GeminiModule } from './gemini/gemini.module';
-import { CacheModule } from './cache/cache.module';
-import { AuthModule } from './auth/auth.module';
-import { CompanyModule } from './company/company.module';
+import { DocumentChunk } from './features/document/document-chunk.entity';
+import { Pdf } from './features/document/pdf.entity';
+import { Company } from './features/company/company.entity';
+import { ChatMessage } from './features/chat/chat-message.entity';
+import { CachedAnswer } from './core/cache/cached-answer.entity';
+import { WidgetKey } from './features/widget/widget-key.entity';
+import { AllowedDomain } from './features/widget/allowed-domain.entity';
+import { DocumentModule } from './features/document/document.module';
+import { ChatModule } from './features/chat/chat.module';
+import { RetrievalModule } from './core/retrieval/retrieval.module';
+import { AiModule } from './core/ai/ai.module';
+import { CacheModule } from './core/cache/cache.module';
+import { AuthModule } from './features/auth/auth.module';
+import { CompanyModule } from './features/company/company.module';
+import { WidgetModule } from './features/widget/widget.module';
+import { ImageRecord } from './features/image/image.entity';
+import { ImageModule } from './features/image/image.module';
 
 @Module({
   imports: [
@@ -29,7 +34,7 @@ import { CompanyModule } from './company/company.module';
       useFactory: (config: ConfigService) => ({
         type: 'postgres',
         url: config.get<string>('databaseUrl'),
-        entities: [DocumentChunk, Pdf, Company, ChatMessage, CachedAnswer],
+        entities: [DocumentChunk, Pdf, Company, ChatMessage, CachedAnswer, WidgetKey, AllowedDomain, ImageRecord],
         synchronize: true,
         logging: false,
         extra: {
@@ -42,10 +47,12 @@ import { CompanyModule } from './company/company.module';
     CompanyModule,
     DocumentModule,
     RetrievalModule,
-    GeminiModule,
+    AiModule,
     CacheModule,
     ChatModule,
     AuthModule,
+    WidgetModule,
+    ImageModule,
   ],
 })
 export class AppModule implements OnModuleInit {
@@ -55,3 +62,4 @@ export class AppModule implements OnModuleInit {
     await this.dataSource.query('CREATE EXTENSION IF NOT EXISTS vector;');
   }
 }
+ 

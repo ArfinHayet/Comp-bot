@@ -4,8 +4,17 @@ export default () => ({
     origins: process.env.CORS_ORIGINS ?? 'http://localhost:5173',
   },
   databaseUrl: process.env.DATABASE_URL,
-  google: {
-    apiKey: process.env.GOOGLE_API_KEY,
+  llm: {
+    chat: {
+      provider: process.env.LLM_CHAT_PROVIDER ?? 'gemini',
+      apiKey:   process.env.LLM_CHAT_API_KEY ?? process.env.GOOGLE_API_KEY,
+      model:    process.env.LLM_CHAT_MODEL ?? 'gemini-2.5-flash',
+    },
+    embedding: {
+      provider: process.env.LLM_EMBEDDING_PROVIDER ?? process.env.LLM_CHAT_PROVIDER ?? 'gemini',
+      apiKey:   process.env.LLM_EMBEDDING_API_KEY ?? process.env.LLM_CHAT_API_KEY ?? process.env.GOOGLE_API_KEY,
+      model:    process.env.LLM_EMBEDDING_MODEL ?? 'gemini-embedding-001',
+    },
   },
   rag: {
     chunkSize: parseInt(process.env.CHUNK_SIZE ?? '1000', 10) || 1000,
@@ -22,5 +31,6 @@ export default () => ({
     anonKey: process.env.SUPABASE_ANON_KEY,
     serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
     jwtSecret: process.env.SUPABASE_JWT_SECRET,
+    imagesBucket: process.env.SUPABASE_IMAGES_BUCKET ?? 'images',
   },
 });
