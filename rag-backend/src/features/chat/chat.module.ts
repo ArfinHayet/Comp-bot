@@ -3,15 +3,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ChatMessage } from './chat-message.entity';
 import { ChatService } from './chat.service';
 import { ChatController } from './chat.controller';
-import { GeminiModule } from '../gemini/gemini.module';
-import { CacheModule } from '../cache/cache.module';
+import { AiModule } from '../../core/ai/ai.module';
+import { CacheModule } from '../../core/cache/cache.module';
 import { CompanyModule } from '../company/company.module';
-import { RetrievalModule } from '../retrieval/retrieval.module';
+import { RetrievalModule } from '../../core/retrieval/retrieval.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([ChatMessage]),
-    GeminiModule,
+    AiModule,
     CacheModule,
     CompanyModule,
     RetrievalModule,

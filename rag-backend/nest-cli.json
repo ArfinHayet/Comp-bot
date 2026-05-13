@@ -5,7 +5,7 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "assets": [
-      { "include": "chat/prompts/*.txt", "outDir": "./dist" },
+      { "include": "features/chat/prompts/*.txt", "outDir": "./dist" },
       { "include": "public/**", "outDir": "./dist" }
     ],
     "watchAssets": true

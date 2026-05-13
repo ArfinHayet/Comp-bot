@@ -3,7 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
-import { GoogleGenerativeAIEmbeddings } from '@langchain/google-genai';
+import { Embeddings } from '@langchain/core/embeddings';
+import { LlmFactoryService } from '../../core/llm/llm-factory.service';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { PDFParse } = require('pdf-parse') as { PDFParse: new (opts: { data: Buffer }) => { getText(): Promise<{ text: string }> } };
 import { DocumentChunk } from './document-chunk.entity';
@@ -13,7 +14,7 @@ import { UpdatePdfDto } from './dto/update-pdf.dto';
 @Injectable()
 export class DocumentService {
   private readonly logger = new Logger(DocumentService.name);
-  private readonly embeddings: GoogleGenerativeAIEmbeddings;
+  private readonly embeddings: Embeddings;
 
   constructor(
     @InjectRepository(DocumentChunk)
@@ -22,11 +23,9 @@ export class DocumentService {
     private readonly pdfRepo: Repository<Pdf>,
     private readonly config: ConfigService,
     private readonly dataSource: DataSource,
+    private readonly llmFactory: LlmFactoryService,
   ) {
-    this.embeddings = new GoogleGenerativeAIEmbeddings({
-      apiKey: this.config.get<string>('google.apiKey'),
-      model: 'gemini-embedding-001',
-    });
+    this.embeddings = this.llmFactory.getEmbeddings();
   }
 
   async ingestPdf(file: Express.Multer.File, userId: string): Promise<{

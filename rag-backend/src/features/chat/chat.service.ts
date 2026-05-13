@@ -5,10 +5,10 @@ import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ChatMessage } from './chat-message.entity';
-import { GeminiService } from '../gemini/gemini.service';
-import { CacheService } from '../cache/cache.service';
+import { AiService } from '../../core/ai/ai.service';
+import { CacheService } from '../../core/cache/cache.service';
 import { CompanyService } from '../company/company.service';
-import { RetrievalService } from '../retrieval/retrieval.service';
+import { RetrievalService } from '../../core/retrieval/retrieval.service';
 
 /** Max stored messages loaded per session (10 full turns) */
 const MAX_HISTORY = 20;
@@ -24,7 +24,7 @@ export class ChatService implements OnModuleInit {
     @InjectRepository(ChatMessage)
     private readonly chatRepo: Repository<ChatMessage>,
     private readonly config: ConfigService,
-    private readonly geminiService: GeminiService,
+    private readonly aiService: AiService,
     private readonly cacheService: CacheService,
     private readonly companyService: CompanyService,
     private readonly retrievalService: RetrievalService,
@@ -73,7 +73,7 @@ export class ChatService implements OnModuleInit {
   ): Promise<{ answer: string; cached: boolean }> {
 
     // ── 1. Embed question (needed for cache lookup) ──────────────────────────
-    const queryVector = await this.geminiService.embedText(message);
+    const queryVector = await this.aiService.embedText(message);
 
     // ── 2. Semantic cache check ──────────────────────────────────────────────
     const cachedAnswer = await this.cacheService.findHit(queryVector, userId);
@@ -105,7 +105,7 @@ export class ChatService implements OnModuleInit {
     // ── 4. Run agentic loop — LLM decides when/what to retrieve ─────────────
     let answer: string;
     try {
-      answer = await this.geminiService.runAgenticLoop(
+      answer = await this.aiService.runAgenticLoop(
         systemPrompt,
         history,
         message,

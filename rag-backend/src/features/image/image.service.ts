@@ -3,25 +3,27 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { GoogleGenerativeAIEmbeddings } from '@langchain/google-genai';
+import { Embeddings } from '@langchain/core/embeddings';
 import { extname } from 'path';
 import { randomUUID } from 'crypto';
 import { ImageRecord } from './image.entity';
 import { UpdateImageDto } from './dto/update-image.dto';
-import { GeminiService } from '../gemini/gemini.service';
+import { AiService } from '../../core/ai/ai.service';
+import { LlmFactoryService } from '../../core/llm/llm-factory.service';
 
 @Injectable()
 export class ImageService {
   private readonly logger = new Logger(ImageService.name);
   private readonly supabase: SupabaseClient;
-  private readonly embeddings: GoogleGenerativeAIEmbeddings;
+  private readonly embeddings: Embeddings;
   private readonly bucket: string;
 
   constructor(
     @InjectRepository(ImageRecord)
     private readonly imageRepo: Repository<ImageRecord>,
     private readonly config: ConfigService,
-    private readonly geminiService: GeminiService,
+    private readonly aiService: AiService,
+    private readonly llmFactory: LlmFactoryService,
   ) {
     this.supabase = createClient(
       this.config.get<string>('supabase.url')!,
@@ -29,14 +31,11 @@ export class ImageService {
     );
     this.bucket = this.config.get<string>('supabase.imagesBucket') ?? 'images';
     this.logger.log(`Using Supabase Storage bucket: "${this.bucket}"`);
-    this.embeddings = new GoogleGenerativeAIEmbeddings({
-      apiKey: this.config.get<string>('google.apiKey'),
-      model: 'gemini-embedding-001',
-    });
+    this.embeddings = this.llmFactory.getEmbeddings();
   }
 
   analyzeImage(base64: string, mimeType: string) {
-    return this.geminiService.analyzeImage(base64, mimeType);
+    return this.aiService.analyzeImage(base64, mimeType);
   }
 
   async saveImage(

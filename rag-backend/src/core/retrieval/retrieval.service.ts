@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
-import { GoogleGenerativeAIEmbeddings } from '@langchain/google-genai';
+import { Embeddings } from '@langchain/core/embeddings';
+import { LlmFactoryService } from '../llm/llm-factory.service';
 
 export interface RetrievedChunk {
   content: string;
@@ -15,16 +16,14 @@ const DOC_THRESHOLD = 0.7;
 @Injectable()
 export class RetrievalService {
   private readonly logger = new Logger(RetrievalService.name);
-  private readonly embeddings: GoogleGenerativeAIEmbeddings;
+  private readonly embeddings: Embeddings;
 
   constructor(
     private readonly dataSource: DataSource,
     private readonly config: ConfigService,
+    private readonly llmFactory: LlmFactoryService,
   ) {
-    this.embeddings = new GoogleGenerativeAIEmbeddings({
-      apiKey: this.config.get<string>('google.apiKey'),
-      model: 'gemini-embedding-001',
-    });
+    this.embeddings = this.llmFactory.getEmbeddings();
   }
 
   /**

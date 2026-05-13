@@ -1,11 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import axios from 'axios';
 import { z } from 'zod';
 import { tool } from '@langchain/core/tools';
-import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { HumanMessage, AIMessage, BaseMessage } from '@langchain/core/messages';
 import { createAgent } from 'langchain';
+import { LlmFactoryService } from '../llm/llm-factory.service';
 import { RetrievalService } from '../retrieval/retrieval.service';
 
 const analyzeOutputSchema = z.object({
@@ -14,17 +13,18 @@ const analyzeOutputSchema = z.object({
 });
 
 /** History shape shared with ChatService */
-export interface GeminiMessage {
+export interface Message {
   role: 'user' | 'model';
   parts: { text?: string }[];
 }
 
 @Injectable()
-export class GeminiService {
-  private readonly logger = new Logger(GeminiService.name);
+export class AiService {
+  private readonly logger = new Logger(AiService.name);
 
   constructor(
     private readonly config: ConfigService,
+    private readonly llmFactory: LlmFactoryService,
     private readonly retrievalService: RetrievalService,
   ) {}
 
@@ -35,11 +35,10 @@ export class GeminiService {
    */
   async runAgenticLoop(
     systemPrompt: string,
-    history: GeminiMessage[],
+    history: Message[],
     userMessage: string,
     userId: string,
   ): Promise<string> {
-    const apiKey = this.config.get<string>('google.apiKey')!;
     const maxIterations = this.config.get<number>('rag.maxToolIterations') ?? 10;
 
     // ── 1. Tool definitions ───────────────────────────────────────────────────
@@ -85,10 +84,7 @@ export class GeminiService {
     );
 
     // ── 2. LLM ────────────────────────────────────────────────────────────────
-    const llm = new ChatGoogleGenerativeAI({
-      apiKey,
-      model: 'gemini-2.5-flash',
-    });
+    const llm = this.llmFactory.getChatModel();
 
     // ── 3. Convert stored history to LangChain messages ──────────────────────
     const chatHistory: BaseMessage[] = history.map((m) => {
@@ -120,9 +116,8 @@ export class GeminiService {
     console.log('Agentic loop result:', result);
 
     // Last message in the result is the final AI answer.
-    // Google GenAI often returns content as an array of parts ({ type, text })
-    // instead of a plain string. JSON.stringify-ing that re-escapes newlines as
-    // literal \n, breaking markdown rendering. Extract text parts explicitly.
+    // Some providers return content as an array of parts ({ type, text })
+    // instead of a plain string. Extract text parts explicitly.
     const lastMsg = result.messages.at(-1);
     let output: string;
     if (typeof lastMsg?.content === 'string') {
@@ -138,24 +133,19 @@ export class GeminiService {
 
     if (!output) throw new Error('Agent returned empty output');
 
-    // Gemini sometimes emits literal \n (backslash-n) instead of real newlines.
-    // Unescape them so markdown renderers receive proper line breaks.
+    // Some models emit literal \n instead of real newlines — unescape them.
     return output.replace(/\\n/g, '\n');
   }
 
   /**
-   * Analyze an image with Gemini Vision via LangChain and return a structured
-   * title + description. Uses withStructuredOutput for type-safe JSON parsing.
+   * Analyze an image and return a structured title + description.
+   * Uses withStructuredOutput for type-safe JSON parsing.
    */
   async analyzeImage(
     base64: string,
     mimeType: string,
   ): Promise<{ title: string; description: string }> {
-    const apiKey = this.config.get<string>('google.apiKey')!;
-    const llm = new ChatGoogleGenerativeAI({
-      apiKey,
-      model: 'gemini-2.5-flash',
-    }).withStructuredOutput(analyzeOutputSchema);
+    const llm = this.llmFactory.getChatModel().withStructuredOutput(analyzeOutputSchema);
 
     const result = await llm.invoke([
       new HumanMessage({
@@ -176,16 +166,8 @@ export class GeminiService {
     return result;
   }
 
-  /** Embed a text string using Gemini embedding-001 via REST */
+  /** Embed a text string using the configured embedding provider */
   async embedText(text: string): Promise<number[]> {
-    const apiKey = this.config.get<string>('google.apiKey');
-    const response = await axios.post<{ embedding: { values: number[] } }>(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=${apiKey}`,
-      {
-        model: 'models/gemini-embedding-001',
-        content: { parts: [{ text }] },
-      },
-    );
-    return response.data.embedding.values;
+    return this.llmFactory.getEmbeddings().embedQuery(text);
   }
 }
