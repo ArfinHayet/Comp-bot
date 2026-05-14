@@ -49,7 +49,7 @@ export class ChatService implements OnModuleInit {
 
   private async buildSystemPrompt(userId: string): Promise<string> {
     const company = await this.companyService.getActive(userId);
-    console.log('Active company profile:', company);
+    console.log('Active company profile:', company, userId);
     if (!company) return this.systemPrompt;
 
     const name = company.name;
