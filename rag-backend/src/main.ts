@@ -20,19 +20,7 @@ async function bootstrap() {
   ];
 
   app.enableCors({
-    origin: (origin, callback) => {
-      console.log('[cors] origin check', { origin, allowedOrigins });
-      if (!origin) {
-        // No Origin header = server-to-server / health-check — skip CORS headers
-        return callback(null, false);
-      }
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.warn('[cors] REJECTED origin', origin);
-        callback(new Error(`Origin ${origin} not allowed by CORS`));
-      }
-    },
+    origin: true,
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
