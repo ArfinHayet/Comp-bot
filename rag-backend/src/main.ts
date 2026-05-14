@@ -9,22 +9,8 @@ async function bootstrap() {
   app.use(require('express').json({ limit: '10mb' }));
   app.use(require('express').urlencoded({ limit: '10mb', extended: true }));
   const config = app.get(ConfigService);
-  // Always include localhost so local dev works regardless of what CORS_ORIGINS is set to on Vercel
-  const allowedOrigins = [
-    ...(config.get<string>('cors.origins') || '')
-      .split(',')
-      .map((o) => o.trim())
-      .filter(Boolean),
-    'http://localhost:5173',
-    'http://localhost:3000',
-  ];
 
-  app.enableCors({
-    origin: true,
-    credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  });
+  app.enableCors({ origin: '*' });
 
   const port = config.get<number>('port') || 3000;
   await app.listen(port);
