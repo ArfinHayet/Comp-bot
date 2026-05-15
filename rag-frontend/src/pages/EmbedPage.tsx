@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Copy, Plus, Trash2, Globe, Key, Code2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   listWidgetKeys,
   createWidgetKey,
@@ -13,6 +14,55 @@ import {
 } from "@/lib/api";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+function WidgetKeySkeleton() {
+  return (
+    <div className="rounded-rm-trip-smooth border border-gray-100 overflow-hidden">
+      <div className="grid grid-cols-[1.2fr_2fr_1fr_80px] bg-gray-50 border-b border-gray-100 px-4 py-2.5">
+        {["Label", "Key", "Created", ""].map((heading) => (
+          <p key={heading} className="text-xs font-semibold uppercase tracking-wide text-rm-trip-text-muted">
+            {heading}
+          </p>
+        ))}
+      </div>
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div
+          key={index}
+          className="grid grid-cols-[1.2fr_2fr_1fr_80px] items-center gap-4 border-b border-gray-50 px-4 py-3 last:border-0"
+        >
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="h-5 w-56 rounded-md" />
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-7 w-16 ml-auto" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DomainSkeleton() {
+  return (
+    <div className="rounded-rm-trip-smooth border border-gray-100 overflow-hidden">
+      <div className="grid grid-cols-[2fr_1fr_48px] bg-gray-50 border-b border-gray-100 px-4 py-2.5">
+        {["Domain", "Added", ""].map((heading) => (
+          <p key={heading} className="text-xs font-semibold uppercase tracking-wide text-rm-trip-text-muted">
+            {heading}
+          </p>
+        ))}
+      </div>
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div
+          key={index}
+          className="grid grid-cols-[2fr_1fr_48px] items-center gap-4 border-b border-gray-50 px-4 py-3 last:border-0"
+        >
+          <Skeleton className="h-4 w-44" />
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-7 w-7 ml-auto" />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function EmbedPage() {
   const [keys, setKeys] = useState<WidgetKeyItem[]>([]);
@@ -89,7 +139,6 @@ export function EmbedPage() {
   return (
     <div className="min-h-screen bg-rm-trip-surface px-4 py-10 sm:px-8">
       <div className="mx-auto space-y-6">
-        {/* ── Page header ── */}
         <div className="mb-8">
           <div className="inline-flex items-center gap-2 bg-rm-trip-brand/10 text-rm-trip-brand text-xs font-semibold px-3 py-1 rounded-rm-trip-pill mb-3 uppercase tracking-wider">
             Embed
@@ -101,7 +150,6 @@ export function EmbedPage() {
           </p>
         </div>
 
-        {/* ── Widget Keys ── */}
         <div className="bg-white rounded-rm-trip-smooth shadow-rm-trip-card border border-gray-100 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
             <div className="h-7 w-7 rounded-lg bg-rm-trip-brand/10 flex items-center justify-center">
@@ -111,8 +159,7 @@ export function EmbedPage() {
           </div>
 
           <div className="p-6 space-y-5">
-            {/* Create row */}
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <input
                 type="text"
                 placeholder="Label (e.g. My Website)"
@@ -123,21 +170,20 @@ export function EmbedPage() {
               />
               <button
                 onClick={handleCreateKey}
-                className="flex items-center gap-1.5 bg-rm-trip-brand hover:bg-rm-trip-brand-dark text-white font-semibold py-2.5 px-4 rounded-rm-trip-smooth shadow-rm-trip-card transition-all duration-150 text-sm"
+                className="flex items-center justify-center gap-1.5 bg-rm-trip-brand hover:bg-rm-trip-brand-dark text-white font-semibold py-2.5 px-4 rounded-rm-trip-smooth shadow-rm-trip-card transition-all duration-150 text-sm"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Create
               </button>
             </div>
 
-            {/* Table */}
             {loadingKeys ? (
-              <p className="text-sm text-rm-trip-text-muted">Loading…</p>
+              <WidgetKeySkeleton />
             ) : keys.length === 0 ? (
               <p className="text-sm text-rm-trip-text-muted">No widget keys yet. Create one above.</p>
             ) : (
-              <div className="rounded-rm-trip-smooth border border-gray-100 overflow-hidden">
-                <table className="w-full text-sm">
+              <div className="rounded-rm-trip-smooth border border-gray-100 overflow-x-auto">
+                <table className="w-full min-w-[680px] text-sm">
                   <thead>
                     <tr className="bg-gray-50 border-b border-gray-100">
                       <th className="text-left px-4 py-2.5 text-xs font-semibold text-rm-trip-text-muted uppercase tracking-wide">
@@ -189,13 +235,12 @@ export function EmbedPage() {
               </div>
             )}
 
-            {/* Snippet preview */}
             {keys.length > 0 && (
               <div className="rounded-rm-trip-smooth bg-gray-50 border border-gray-100 p-4">
                 <div className="flex items-center gap-1.5 mb-2">
                   <Code2 className="h-3.5 w-3.5 text-rm-trip-text-muted" />
                   <p className="text-xs font-semibold text-rm-trip-text-muted">
-                    Embed snippet — click the copy icon on any key
+                    Embed snippet - click the copy icon on any key
                   </p>
                 </div>
                 <pre className="text-xs text-rm-trip-text font-mono overflow-x-auto whitespace-pre-wrap break-all leading-relaxed">
@@ -206,7 +251,6 @@ export function EmbedPage() {
           </div>
         </div>
 
-        {/* ── Allowed Domains ── */}
         <div className="bg-white rounded-rm-trip-smooth shadow-rm-trip-card border border-gray-100 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
             <div className="h-7 w-7 rounded-lg bg-rm-trip-brand/10 flex items-center justify-center">
@@ -224,7 +268,7 @@ export function EmbedPage() {
               ). Localhost is always allowed automatically.
             </p>
 
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <input
                 type="text"
                 placeholder="https://example.com"
@@ -235,7 +279,7 @@ export function EmbedPage() {
               />
               <button
                 onClick={handleCreateDomain}
-                className="flex items-center gap-1.5 bg-rm-trip-brand hover:bg-rm-trip-brand-dark text-white font-semibold py-2.5 px-4 rounded-rm-trip-smooth shadow-rm-trip-card transition-all duration-150 text-sm"
+                className="flex items-center justify-center gap-1.5 bg-rm-trip-brand hover:bg-rm-trip-brand-dark text-white font-semibold py-2.5 px-4 rounded-rm-trip-smooth shadow-rm-trip-card transition-all duration-150 text-sm"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Add
@@ -243,7 +287,7 @@ export function EmbedPage() {
             </div>
 
             {loadingDomains ? (
-              <p className="text-sm text-rm-trip-text-muted">Loading…</p>
+              <DomainSkeleton />
             ) : domains.length === 0 ? (
               <p className="text-sm text-rm-trip-text-muted">No domains whitelisted yet.</p>
             ) : (

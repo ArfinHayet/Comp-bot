@@ -5,6 +5,30 @@ import { toast } from "sonner";
 import { login } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 
+function GoogleIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+      <path
+        fill="#EA4335"
+        d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+      />
+      <path
+        fill="#4285F4"
+        d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+      />
+      <path
+        fill="#34A853"
+        d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+      />
+      <path fill="none" d="M0 0h48v48H0z" />
+    </svg>
+  );
+}
+
 export function LoginPage() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -22,12 +46,11 @@ export function LoginPage() {
       toast.error(error.message);
       setGoogleLoading(false);
     }
-    // On success the browser is redirected — no further action needed here
   };
 
   const validate = () => {
     const newErrors: { email?: string; password?: string } = {};
-    if (!formData.email) newErrors.email = "Please provide valid email!";
+    if (!formData.email) newErrors.email = "Please provide a valid email.";
     if (!formData.password) newErrors.password = "Password is required.";
     return newErrors;
   };
@@ -65,41 +88,41 @@ export function LoginPage() {
   };
 
   return (
-    <div className="bg-cover bg-center bg-no-repeat bg-[linear-gradient(to_top,_rgba(245,247,250,0.95),_rgba(245,247,250,0.8)),url('/images/bg.svg')]">
-      <div className="min-h-screen container flex items-center justify-center">
-        <div className="w-full max-w-lg bg-rm-trip-surface-card rounded-rm-trip-smooth shadow-rm-trip-glow p-8 sm:p-10">
-          {/* Header */}
-          <div className="text-center mb-6">
-            {/* Robot Logo */}
-            <div className="flex justify-center mb-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-rm-trip-smooth bg-rm-trip-brand">
+    <div className="relative isolate min-h-screen overflow-hidden bg-rm-trip-surface">
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_18%,rgba(37,99,235,0.16),transparent_30%),radial-gradient(circle_at_82%_12%,rgba(20,184,166,0.12),transparent_28%),linear-gradient(135deg,#f8fafc_0%,#eef4ff_48%,#f8fafc_100%)]" />
+      <div className="absolute left-1/2 top-16 -z-10 h-72 w-[36rem] -translate-x-1/2 rounded-full bg-white/60 blur-3xl" />
+
+      <div className="container flex min-h-screen items-center justify-center px-4 py-10">
+        <div className="w-full max-w-md rounded-rm-trip-smooth border border-white/80 bg-white/95 p-7 shadow-[0_24px_70px_rgba(15,23,42,0.16)] backdrop-blur sm:p-9">
+          <div className="mb-7 text-center">
+            <div className="mb-4 flex justify-center">
+              <div className="flex h-14 w-14 items-center justify-center rounded-rm-trip-smooth bg-rm-trip-brand shadow-rm-trip-glow">
                 <Bot className="h-8 w-8 text-white" />
               </div>
             </div>
-            <h2 className="text-rm-trip-h2 font-bold text-gray-700 mb-2">Sign In to Your Account</h2>
-            <p className="text-gray-600 text-sm font-semibold">Access your account by signing in below</p>
+            <h1 className="font-rm-trip-heading text-2xl font-bold text-rm-trip-text">Sign in to your account</h1>
+            <p className="mt-2 text-sm font-medium text-rm-trip-text-muted">Access your knowledge base workspace.</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-3">
-            {/* Email */}
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="email" className="mb-2 block text-sm font-bold text-rm-trip-text">
                 Email
               </label>
               <input
-                placeholder="example@mail.com"
+                placeholder="you@example.com"
                 id="email"
-                type="text"
+                type="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 bg-white outline-none transition-all duration-150 focus:border-rm-trip-highlight focus:ring-2 focus:ring-rm-trip-highlight/20 placeholder:text-gray-400"
+                autoComplete="email"
+                className="w-full rounded-rm-trip-smooth border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-rm-trip-text outline-none transition-all placeholder:text-gray-400 focus-rm-trip-highlight focus:bg-white"
               />
-              {errors.email && <small className="text-rm-trip-error text-xs">{errors.email}</small>}
+              {errors.email && <p className="mt-1.5 text-xs font-medium text-rm-trip-error">{errors.email}</p>}
             </div>
 
-            {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="password" className="mb-2 block text-sm font-bold text-rm-trip-text">
                 Password
               </label>
               <input
@@ -108,62 +131,53 @@ export function LoginPage() {
                 id="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 bg-white outline-none transition-all duration-150 focus:border-rm-trip-highlight focus:ring-2 focus:ring-rm-trip-highlight/20 placeholder:text-gray-400"
+                autoComplete="current-password"
+                className="w-full rounded-rm-trip-smooth border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-rm-trip-text outline-none transition-all placeholder:text-gray-400 focus-rm-trip-highlight focus:bg-white"
               />
-              <div className="flex justify-between items-center mt-2 text-sm">
-                {errors.password ? <small className="text-rm-trip-error text-xs">{errors.password}</small> : <span />}
-                <Link to="/users/forgot-password" className="text-rm-trip-highlight hover:underline font-medium">
-                  Forgot Password?
+              <div className="mt-2 flex items-center justify-between gap-3 text-sm">
+                {errors.password ? (
+                  <p className="text-xs font-medium text-rm-trip-error">{errors.password}</p>
+                ) : (
+                  <span />
+                )}
+                <Link to="/users/forgot-password" className="font-semibold text-rm-trip-highlight hover:underline">
+                  Forgot password?
                 </Link>
               </div>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={formStatus === "loading" || formStatus === "success"}
-              className="w-full bg-rm-trip-brand text-white font-bold py-3 rounded-rm-trip-smooth shadow-md transition hover:opacity-90 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex w-full items-center justify-center gap-2 rounded-rm-trip-smooth bg-rm-trip-brand px-4 py-3 text-sm font-bold text-white shadow-rm-trip-glow transition-all hover:bg-rm-trip-brand-dark disabled:cursor-not-allowed disabled:opacity-70"
             >
               {formStatus === "loading" && <Loader2 className="h-4 w-4 animate-spin" />}
               {formStatus === "success" && <CheckCircle2 className="h-4 w-4" />}
-              {formStatus === "loading" ? "Signing in…" : formStatus === "success" ? "Success" : "Sign In"}
+              {formStatus === "loading" ? "Signing in..." : formStatus === "success" ? "Success" : "Sign In"}
             </button>
 
-            {/* Register link */}
-            <div className="text-center mt-4">
-              <span className="text-gray-600 text-sm font-semibold">Don't have an account? </span>
-              <Link to="/signup" className="text-rm-trip-highlight font-semibold hover:underline">
-                Register
-              </Link>
-            </div>
-
-            {/* Divider */}
             <div className="relative flex items-center gap-3 py-1">
               <div className="flex-1 border-t border-gray-200" />
-              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">or</span>
+              <span className="text-xs font-bold uppercase tracking-wide text-rm-trip-text-muted">or</span>
               <div className="flex-1 border-t border-gray-200" />
             </div>
 
-            {/* Google OAuth */}
             <button
               type="button"
               onClick={() => void handleGoogleSignIn()}
               disabled={googleLoading || formStatus === "loading" || formStatus === "success"}
-              className="w-full flex items-center justify-center gap-3 border border-gray-300 bg-white text-gray-700 font-semibold py-3 rounded-rm-trip-smooth shadow-sm transition hover:bg-gray-50 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="flex w-full items-center justify-center gap-3 rounded-rm-trip-smooth border border-gray-200 bg-white px-4 py-3 text-sm font-bold text-rm-trip-text shadow-sm transition-all hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {googleLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
-                  <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                  <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                  <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-                  <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-                  <path fill="none" d="M0 0h48v48H0z"/>
-                </svg>
-              )}
-              {googleLoading ? "Redirecting…" : "Continue with Google"}
+              {googleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
+              {googleLoading ? "Redirecting..." : "Continue with Google"}
             </button>
+
+            <p className="pt-1 text-center text-sm font-medium text-rm-trip-text-muted">
+              Don't have an account?{" "}
+              <Link to="/signup" className="font-bold text-rm-trip-highlight hover:underline">
+                Register
+              </Link>
+            </p>
           </form>
         </div>
       </div>
