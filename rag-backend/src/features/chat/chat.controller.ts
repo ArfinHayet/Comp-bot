@@ -1,4 +1,4 @@
-import { Controller, Post, Body, BadRequestException, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Get, Body, BadRequestException, UseGuards, Req } from '@nestjs/common';
 import type { Request } from 'express';
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -12,7 +12,14 @@ class ChatRequestDto {
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
-  @Post()
+  @Get('history')
+  @UseGuards(JwtAuthGuard)
+  async getHistory(@Req() req: Request) {
+    const userId = (req.user as { id: string }).id;
+    return this.chatService.getHistory(userId);
+  }
+
+    @Post()
   @UseGuards(JwtAuthGuard)
   async chat(@Body() body: ChatRequestDto, @Req() req: Request) {
     if (!body.message?.trim()) throw new BadRequestException('message is required');

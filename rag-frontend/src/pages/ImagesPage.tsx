@@ -3,6 +3,8 @@ import { Calendar, ImageIcon, Loader2, Pencil, RefreshCw, Trash2 } from "lucide-
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { DataTable } from "@/components/ui/DataTable";
 import { listImages, updateImage, deleteImage, type ImageItem } from "@/lib/api";
 
 export function ImagesPage() {
@@ -73,27 +75,20 @@ export function ImagesPage() {
 
   return (
     <div className="min-h-screen bg-rm-trip-surface">
+      <PageHeader
+        title="Images"
+        subtitle={loading ? "Loading…" : `${images.length} image${images.length !== 1 ? "s" : ""} in the knowledge base`}
+      >
+        <button
+          onClick={() => void load()}
+          disabled={loading}
+          className="inline-flex items-center justify-center gap-2 rounded-rm-trip-smooth border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-rm-trip-text-muted shadow-sm transition-all hover:border-gray-300 hover:text-rm-trip-text disabled:opacity-50"
+        >
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+          Refresh
+        </button>
+      </PageHeader>
       <div className="mx-auto px-4 py-6 space-y-6 sm:px-8 sm:py-8">
-        <div className="sticky top-0 z-10 -mx-4 bg-white px-4 py-5 shadow-rm-trip-card border-b border-gray-100 sm:-mx-8 sm:px-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="font-rm-trip-heading text-2xl font-bold text-rm-trip-text leading-tight">Images</h1>
-              <p className="text-rm-trip-text-muted text-sm mt-0.5">
-                {loading ? "Loading..." : `${images.length} image${images.length !== 1 ? "s" : ""}`} in the knowledge
-                base
-              </p>
-            </div>
-            <button
-              onClick={() => void load()}
-              disabled={loading}
-              className="inline-flex items-center justify-center gap-2 rounded-rm-trip-smooth border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-rm-trip-text-muted shadow-sm transition-all hover:border-gray-300 hover:text-rm-trip-text disabled:opacity-50"
-            >
-              <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-              Refresh
-            </button>
-          </div>
-        </div>
-
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="rounded-rm-trip-smooth border border-gray-100 bg-white px-5 py-4 shadow-rm-trip-card">
             <p className="mb-2 text-xs font-bold uppercase tracking-widest text-rm-trip-text-muted">Total Images</p>
@@ -121,64 +116,40 @@ export function ImagesPage() {
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-rm-trip-smooth border border-gray-100 bg-white shadow-rm-trip-card">
-          <div className="hidden grid-cols-[84px_1.3fr_2fr_1.3fr_92px] gap-4 border-b border-gray-100 bg-gray-50/80 px-6 py-3.5 md:grid">
-            {["Preview", "Title", "Description", "Uploaded At", "Actions"].map((heading, index) => (
-              <p
-                key={heading}
-                className={`text-xs font-bold uppercase tracking-widest text-rm-trip-text-muted ${index === 4 ? "text-right" : ""}`}
-              >
-                {heading}
-              </p>
-            ))}
-          </div>
-
-          {loading &&
-            Array.from({ length: 4 }).map((_, index) => (
-              <div
-                key={index}
-                className="grid gap-3 border-b border-gray-50 px-5 py-4 md:grid-cols-[84px_1.3fr_2fr_1.3fr_92px] md:items-center md:gap-4 md:px-6"
-              >
-                <Skeleton className="h-12 w-12 rounded-rm-trip-smooth" />
-                <Skeleton className="h-4 w-36" />
-                <Skeleton className="h-4 w-full max-w-md" />
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-4 w-16 md:ml-auto" />
-              </div>
-            ))}
-
-          {!loading && images.length === 0 && (
-            <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-rm-trip-smooth bg-gray-100">
-                <ImageIcon className="h-8 w-8 text-gray-300" />
-              </div>
-              <div>
-                <p className="font-rm-trip-heading font-bold text-rm-trip-text">No images uploaded yet</p>
-                <p className="mt-1 text-sm text-rm-trip-text-muted">Use the Upload page to add visual knowledge.</p>
-              </div>
-            </div>
-          )}
-
-          {!loading &&
-            images.map((img) => (
-              <div
-                key={img.id}
-                className="grid gap-3 border-b border-gray-50 px-5 py-4 last:border-0 transition-colors hover:bg-blue-50/20 md:grid-cols-[84px_1.3fr_2fr_1.3fr_92px] md:items-center md:gap-4 md:px-6"
-              >
-                <img
-                  src={img.storageUrl}
-                  alt={img.title}
-                  className="h-14 w-14 rounded-rm-trip-smooth border border-gray-100 object-cover shadow-sm"
-                />
-                <p className="min-w-0 truncate text-sm font-semibold text-rm-trip-text">{img.title}</p>
-                <p className="line-clamp-2 text-sm leading-relaxed text-rm-trip-text-muted md:truncate">
-                  {img.description}
-                </p>
+        <DataTable
+          columns={[
+            {
+              key: "preview",
+              label: "Preview",
+              render: (img) => (
+                <img src={img.storageUrl} alt={img.title} className="h-14 w-14 rounded-rm-trip-smooth border border-gray-100 object-cover shadow-sm" />
+              ),
+            },
+            {
+              key: "title",
+              label: "Title",
+              render: (img) => <p className="min-w-0 truncate text-sm font-semibold text-rm-trip-text">{img.title}</p>,
+            },
+            {
+              key: "description",
+              label: "Description",
+              render: (img) => <p className="line-clamp-2 text-sm leading-relaxed text-rm-trip-text-muted">{img.description}</p>,
+            },
+            {
+              key: "date",
+              label: "Uploaded At",
+              render: (img) => (
                 <div className="flex items-center gap-1.5 text-sm text-rm-trip-text-muted">
                   <Calendar className="h-3.5 w-3.5 shrink-0 text-gray-300" />
                   <span>{new Date(img.createdAt).toLocaleString()}</span>
                 </div>
-                <div className="flex justify-end gap-1">
+              ),
+            },
+            {
+              key: "actions",
+              label: "Actions",
+              render: (img) => (
+                <div className="flex justify-start gap-1 group-hover:opacity-100 transition-opacity duration-150">
                   <button
                     onClick={() => openEdit(img)}
                     className="flex h-8 w-8 items-center justify-center rounded-rm-trip-smooth border border-transparent text-rm-trip-text-muted transition-all hover:border-blue-200 hover:bg-blue-100 hover:text-rm-trip-brand"
@@ -194,9 +165,24 @@ export function ImagesPage() {
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
+              ),
+            },
+          ]}
+          data={images}
+          isLoading={loading}
+          getRowKey={(img) => img.id}
+          emptyState={
+            <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-rm-trip-smooth bg-gray-100">
+                <ImageIcon className="h-8 w-8 text-gray-300" />
               </div>
-            ))}
-        </div>
+              <div>
+                <p className="font-rm-trip-heading font-bold text-rm-trip-text">No images uploaded yet</p>
+                <p className="mt-1 text-sm text-rm-trip-text-muted">Use the Upload page to add visual knowledge.</p>
+              </div>
+            </div>
+          }
+        />
       </div>
 
       <Dialog open={!!editTarget} onOpenChange={(open) => !open && setEditTarget(null)}>

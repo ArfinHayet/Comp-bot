@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Loader2, Bot, CheckCircle2 } from "lucide-react";
+import { Loader2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { signup } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
@@ -112,9 +112,11 @@ export function SignupPage() {
     <AuthSurface>
       <div className="w-full max-w-md rounded-rm-trip-smooth border border-white/80 bg-white/95 p-7 shadow-[0_24px_70px_rgba(15,23,42,0.16)] backdrop-blur sm:p-9">
         <div className="mb-7 text-center">
-          <div className="mb-4 flex justify-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-rm-trip-smooth bg-rm-trip-brand shadow-rm-trip-glow">
-              <Bot className="h-8 w-8 text-white" />
+          <div className="mb-4 flex items-center justify-center gap-3">
+            <img src="/favicon.svg" alt="Logo" className="h-10 w-10" />
+            <div className="text-left">
+              <p className="font-rm-trip-heading text-base font-bold text-rm-trip-text leading-none">ReplyMate Ai</p>
+              <p className="text-xs text-rm-trip-text-muted mt-0.5">Your personal AI assistant</p>
             </div>
           </div>
           <h1 className="font-rm-trip-heading text-2xl font-bold text-rm-trip-text">Create your account</h1>

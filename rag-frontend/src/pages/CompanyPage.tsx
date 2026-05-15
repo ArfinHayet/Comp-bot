@@ -3,6 +3,8 @@ import { Pencil, Trash2, Loader2, Building2, Plus, RefreshCw, Calendar } from "l
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { DataTable } from "@/components/ui/DataTable";
 import { listCompanies, createCompany, updateCompany, deleteCompany, type Company } from "@/lib/api";
 
 type FormState = { name: string; shortDescription: string };
@@ -83,40 +85,27 @@ export function CompanyPage() {
 
   return (
     <div className="min-h-screen bg-rm-trip-surface">
-      {/* ── Sticky top bar ── */}
-
-      {/* ── Page body ── */}
+      <PageHeader
+        title="Company Profile"
+        subtitle="The Active company is injected into the chatbot's system prompt."
+      >
+        <button
+          onClick={() => void load()}
+          disabled={loading}
+          className="flex items-center gap-2 border border-gray-200 bg-white text-rm-trip-text-muted hover:text-rm-trip-text hover:border-gray-300 font-semibold py-2.5 px-4 rounded-rm-trip-smooth transition-all duration-150 text-sm disabled:opacity-50 shadow-sm"
+        >
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+          Refresh
+        </button>
+        <button
+          onClick={openCreate}
+          className="flex items-center gap-2 bg-rm-trip-brand hover:bg-rm-trip-brand-dark text-white font-bold py-2.5 px-5 rounded-rm-trip-smooth shadow-rm-trip-glow transition-all duration-150 text-sm"
+        >
+          <Plus className="h-4 w-4" />
+          Add Company
+        </button>
+      </PageHeader>
       <div className="mx-auto px-8 py-8 space-y-6">
-        <div className="bg-white border-b border-gray-100 shadow-rm-trip-card px-8 py-5 sticky top-0 z-10">
-          <div className="mx-auto flex items-center justify-between gap-4">
-            <div>
-              <h1 className="font-rm-trip-heading text-2xl font-bold text-rm-trip-text leading-tight">
-                Company Profile
-              </h1>
-              <p className="text-rm-trip-text-muted text-sm mt-0.5">
-                The <span className="font-semibold text-rm-trip-state-success">Active</span> company is injected into
-                the chatbot's system prompt on every request.
-              </p>
-            </div>
-            <div className="flex items-center gap-2.5 shrink-0">
-              <button
-                onClick={() => void load()}
-                disabled={loading}
-                className="flex items-center gap-2 border border-gray-200 bg-white text-rm-trip-text-muted hover:text-rm-trip-text hover:border-gray-300 font-semibold py-2.5 px-4 rounded-rm-trip-smooth transition-all duration-150 text-sm disabled:opacity-50 shadow-sm"
-              >
-                <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-                Refresh
-              </button>
-              <button
-                onClick={openCreate}
-                className="flex items-center gap-2 bg-rm-trip-brand hover:bg-rm-trip-brand-dark text-white font-bold py-2.5 px-5 rounded-rm-trip-smooth shadow-rm-trip-glow transition-all duration-150 text-sm"
-              >
-                <Plus className="h-4 w-4" />
-                Add Company
-              </button>
-            </div>
-          </div>
-        </div>
         {/* ── Stats row ── */}
         <div className="grid grid-cols-3 gap-4">
           <div className="bg-white rounded-rm-trip-smooth border border-gray-100 shadow-rm-trip-card px-5 py-4">
@@ -146,69 +135,14 @@ export function CompanyPage() {
         </div>
 
         {/* ── Table card ── */}
-        <div className="bg-white rounded-rm-trip-smooth shadow-rm-trip-card border border-gray-100 overflow-hidden">
-          {/* Column headers */}
-          <div className="grid grid-cols-[2fr_3fr_2fr_80px] px-6 py-3.5 bg-gray-50/80 border-b border-gray-100">
-            {["Company Name", "Short Description", "Last Updated", "Actions"].map((h, i) => (
-              <p
-                key={h}
-                className={`text-xs font-bold uppercase tracking-widest text-rm-trip-text-muted ${i === 3 ? "text-right" : ""}`}
-              >
-                {h}
-              </p>
-            ))}
-          </div>
-
-          {/* Loading rows */}
-          {loading &&
-            Array.from({ length: 3 }).map((_, i) => (
-              <div
-                key={i}
-                className="grid grid-cols-[2fr_3fr_2fr_80px] px-6 py-4 border-b border-gray-50 items-center gap-4"
-              >
-                <div className="flex items-center gap-3">
-                  <Skeleton className="h-9 w-9 rounded-rm-trip-smooth shrink-0" />
-                  <Skeleton className="h-4 w-28" />
-                </div>
-                <Skeleton className="h-4 w-48" />
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-4 w-12 ml-auto" />
-              </div>
-            ))}
-
-          {/* Empty state */}
-          {!loading && companies.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-20 gap-4">
-              <div className="h-16 w-16 rounded-rm-trip-smooth bg-gray-100 flex items-center justify-center">
-                <Building2 className="h-8 w-8 text-gray-300" />
-              </div>
-              <div className="text-center">
-                <p className="font-rm-trip-heading font-bold text-rm-trip-text">No company profile yet</p>
-                <p className="text-rm-trip-text-muted text-sm mt-1">Add one to give the chatbot a company identity</p>
-              </div>
-              <button
-                onClick={openCreate}
-                className="flex items-center gap-2 bg-rm-trip-brand hover:bg-rm-trip-brand-dark text-white font-bold py-2.5 px-5 rounded-rm-trip-smooth shadow-rm-trip-glow text-sm transition-all duration-150"
-              >
-                <Plus className="h-4 w-4" /> Add Company
-              </button>
-            </div>
-          )}
-
-          {/* Data rows */}
-          {!loading &&
-            companies.map((c, idx) => (
-              <div
-                key={c.id}
-                className={`grid grid-cols-[2fr_3fr_2fr_80px] px-6 py-4 items-center border-b border-gray-50 last:border-0 transition-colors duration-100 group cursor-default
-                ${idx === 0 ? "bg-emerald-50/30 hover:bg-emerald-50/50" : "hover:bg-blue-50/20"}`}
-              >
-                {/* Name + avatar */}
+        <DataTable
+          columns={[
+            {
+              key: "name",
+              label: "Company Name",
+              render: (c, idx) => (
                 <div className="flex items-center gap-3 min-w-0">
-                  <div
-                    className={`h-9 w-9 rounded-rm-trip-smooth flex items-center justify-center shrink-0 font-bold text-sm
-                  ${idx === 0 ? "bg-rm-trip-brand text-white shadow-rm-trip-card" : "bg-gray-100 text-rm-trip-text-muted"}`}
-                  >
+                  <div className={`h-9 w-9 rounded-rm-trip-smooth flex items-center justify-center shrink-0 font-bold text-sm ${idx === 0 ? "bg-rm-trip-brand text-white shadow-rm-trip-card" : "bg-gray-100 text-rm-trip-text-muted"}`}>
                     {c.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="min-w-0 flex items-center gap-2">
@@ -220,18 +154,28 @@ export function CompanyPage() {
                     )}
                   </div>
                 </div>
-
-                {/* Description */}
-                <p className="text-rm-trip-text-muted text-sm truncate pr-6">{c.shortDescription}</p>
-
-                {/* Date */}
+              ),
+            },
+            {
+              key: "description",
+              label: "Short Description",
+              render: (c) => <p className="text-rm-trip-text-muted text-sm truncate pr-6">{c.shortDescription}</p>,
+            },
+            {
+              key: "updated",
+              label: "Last Updated",
+              render: (c) => (
                 <div className="flex items-center gap-1.5 text-rm-trip-text-muted text-sm">
                   <Calendar className="h-3.5 w-3.5 shrink-0 text-gray-300" />
                   <span>{new Date(c.updatedAt).toLocaleString()}</span>
                 </div>
-
-                {/* Actions — reveal on hover */}
-                <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+              ),
+            },
+            {
+              key: "actions",
+              label: "Actions",
+              render: (c) => (
+                <div className="flex justify-start gap-1 group-hover:opacity-100 transition-opacity duration-150">
                   <button
                     onClick={() => openEdit(c)}
                     className="h-8 w-8 flex items-center justify-center rounded-rm-trip-smooth text-rm-trip-text-muted hover:text-rm-trip-brand hover:bg-blue-100 border border-transparent hover:border-blue-200 transition-all duration-150"
@@ -247,9 +191,33 @@ export function CompanyPage() {
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
+              ),
+            },
+          ]}
+          data={companies}
+          isLoading={loading}
+          getRowKey={(c) => c.id}
+          rowClassName={(_, idx) =>
+            idx === 0 ? "bg-emerald-50/30 hover:bg-emerald-50/50 cursor-default" : "hover:bg-blue-50/20 cursor-default"
+          }
+          emptyState={
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <div className="h-16 w-16 rounded-rm-trip-smooth bg-gray-100 flex items-center justify-center">
+                <Building2 className="h-8 w-8 text-gray-300" />
               </div>
-            ))}
-        </div>
+              <div className="text-center">
+                <p className="font-rm-trip-heading font-bold text-rm-trip-text">No company profile yet</p>
+                <p className="text-rm-trip-text-muted text-sm mt-1">Add one to give the chatbot a company identity</p>
+              </div>
+              <button
+                onClick={openCreate}
+                className="flex items-center gap-2 bg-rm-trip-brand hover:bg-rm-trip-brand-dark text-white font-bold py-2.5 px-5 rounded-rm-trip-smooth shadow-rm-trip-glow text-sm transition-all duration-150"
+              >
+                <Plus className="h-4 w-4" /> Add Company
+              </button>
+            </div>
+          }
+        />
       </div>
 
       {/* ── Create / Edit dialog ── */}

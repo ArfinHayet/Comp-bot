@@ -1,4 +1,5 @@
 import { useState, useRef, type DragEvent, type ChangeEvent } from 'react'
+import { PageHeader } from "@/components/layout/PageHeader";
 import { ImageUp, Loader2, CheckCircle2, XCircle, Save } from 'lucide-react'
 import { toast } from 'sonner'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -102,12 +103,9 @@ export function ImageUploadPage() {
   }
 
   return (
-    <div className="p-8 max-w-2xl">
-      <h1 className="text-2xl font-bold mb-1">Upload Image</h1>
-      <p className="text-muted-foreground mb-6 text-sm">
-        Add images to the knowledge base. The system will auto-generate a title and description
-        which you can edit before saving.
-      </p>
+    <div className="min-h-screen bg-rm-trip-surface">
+      <PageHeader title="Upload Image" subtitle="AI auto-generates title and description which you can edit before saving." />
+      <div className="p-8 max-w-2xl">
 
       <Card>
         <CardContent className="pt-6 space-y-4">
@@ -246,6 +244,7 @@ export function ImageUploadPage() {
           </ol>
         </CardContent>
       </Card>
+      </div>
     </div>
-  )
+  );
 }

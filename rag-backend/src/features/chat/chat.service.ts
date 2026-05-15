@@ -155,4 +155,58 @@ export class ChatService implements OnModuleInit {
       this.chatRepo.create({ sessionId, userId, role: 'assistant', content: aiMsg }),
     ]);
   }
+
+  async getHistory(userId: string): Promise<SessionSummary[]> {
+    const msgs = await this.chatRepo.find({
+      where: { userId },
+      order: { createdAt: 'ASC' },
+    });
+
+    const sessionMap = new Map();
+    for (const msg of msgs) {
+      const arr = sessionMap.get(msg.sessionId) ?? [];
+      arr.push(msg);
+      sessionMap.set(msg.sessionId, arr);
+    }
+
+    const sessions: SessionSummary[] = [];
+    for (const [sessionId, messages] of sessionMap) {
+      const last = messages[messages.length - 1];
+      sessions.push({
+        sessionId,
+        messageCount: messages.length,
+        lastMessage: (last.content ?? '').slice(0, 120),
+        lastRole: last.role as 'user' | 'assistant',
+        firstMessageAt: (messages[0].createdAt ?? new Date()).toISOString(),
+        lastMessageAt: (last.createdAt ?? new Date()).toISOString(),
+        messages: messages.map((m) => ({
+          id: m.id,
+          role: m.role as 'user' | 'assistant',
+          content: m.content,
+          createdAt: (m.createdAt ?? new Date()).toISOString(),
+        })),
+      });
+    }
+
+    return sessions.sort(
+      (a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime(),
+    );
+  }
+}
+
+export interface SessionMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  createdAt: string;
+}
+
+export interface SessionSummary {
+  sessionId: string;
+  messageCount: number;
+  lastMessage: string;
+  lastRole: 'user' | 'assistant';
+  firstMessageAt: string;
+  lastMessageAt: string;
+  messages: SessionMessage[];
 }

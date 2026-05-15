@@ -11,7 +11,7 @@
 
   var widgetKey = currentScript.getAttribute("data-key") || "";
   var apiBase = currentScript.getAttribute("data-api") || "";
-  var botName = currentScript.getAttribute("data-name") || "Assistant";
+  var botName = currentScript.getAttribute("data-name") || "ReplyMate Ai";
   var welcomeMsg = currentScript.getAttribute("data-welcome") || "";
 
   if (!widgetKey) {

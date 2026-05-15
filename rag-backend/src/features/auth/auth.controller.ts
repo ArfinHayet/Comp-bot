@@ -6,10 +6,14 @@ import {
   Query,
   BadRequestException,
   Res,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Response } from 'express';
+import type { Request } from 'express';
 import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 
@@ -20,7 +24,26 @@ export class AuthController {
     private readonly config: ConfigService,
   ) {}
 
-  @Post('signup')
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  getMe(@Req() req: Request) {
+    const user = req.user as {
+      id: string;
+      email?: string;
+      created_at: string;
+      user_metadata?: { full_name?: string; name?: string; avatar_url?: string };
+    };
+    const meta = user.user_metadata ?? {};
+    return {
+      id: user.id,
+      email: user.email ?? '',
+      displayName: meta.full_name ?? meta.name ?? (user.email ?? '').split('@')[0],
+      avatarUrl: meta.avatar_url ?? null,
+      joinedAt: user.created_at,
+    };
+  }
+
+    @Post('signup')
   async signup(@Body() body: SignupDto) {
     if (!body.email?.trim()) throw new BadRequestException('email is required');
     if (!body.password?.trim())

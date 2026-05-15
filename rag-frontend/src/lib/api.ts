@@ -236,3 +236,38 @@ export const updateImage = (
 
 export const deleteImage = (id: string) => api.delete(`/images/${id}`)
 
+
+// ── Chat History ───────────────────────────────────────────────────────────────
+
+export interface ChatHistoryMessage {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  createdAt: string
+}
+
+export interface ChatSession {
+  sessionId: string
+  messageCount: number
+  lastMessage: string
+  lastRole: 'user' | 'assistant'
+  firstMessageAt: string
+  lastMessageAt: string
+  messages: ChatHistoryMessage[]
+}
+
+export const getChatHistory = (): Promise<ChatSession[]> =>
+  api.get('/chat/history').then((r) => r.data)
+
+// ── Profile ───────────────────────────────────────────────────────────────────
+
+export interface UserProfile {
+  id: string
+  email: string
+  displayName: string
+  avatarUrl: string | null
+  joinedAt: string
+}
+
+export const getMe = (): Promise<UserProfile> =>
+  api.get('/auth/me').then((r) => r.data)

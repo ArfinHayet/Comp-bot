@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/static-components */
 import { useState, useRef, type DragEvent, type ChangeEvent } from "react";
+import { PageHeader } from "@/components/layout/PageHeader";
 import {
   FileUp,
   File,
@@ -254,8 +255,8 @@ export function UploadPage() {
   // ── Tab config ──────────────────────────────────────────────────────────
   const tabs: { id: ActiveTab; label: string; icon: React.ReactNode; hint: string }[] = [
     { id: "pdf", label: "PDF", icon: <FileUp className="h-3.5 w-3.5" />, hint: "max 50 MB" },
-    { id: "markdown", label: "Markdown", icon: <FileText className="h-3.5 w-3.5" />, hint: "max 10 MB" },
-    { id: "url", label: "URL", icon: <Link2 className="h-3.5 w-3.5" />, hint: "web pages" },
+    // { id: "markdown", label: "Markdown", icon: <FileText className="h-3.5 w-3.5" />, hint: "max 10 MB" },
+    // { id: "url", label: "URL", icon: <Link2 className="h-3.5 w-3.5" />, hint: "web pages" },
     { id: "image", label: "Image", icon: <ImageUp className="h-3.5 w-3.5" />, hint: "max 10 MB" },
   ];
 
@@ -286,27 +287,17 @@ export function UploadPage() {
 
   const steps = [
     "Text is extracted and cleaned of invalid characters",
-    "Content is split into overlapping chunks (1 000 chars · 200 overlap)",
-    "Each chunk is indexed for semantic search",
-    "Chunks and vectors are stored in pgvector (Supabase)",
+    // "Content is split into overlapping chunks (1 000 chars · 200 overlap)",
+    // "Each chunk is indexed for semantic search",
+    // "Chunks and vectors are stored in pgvector (Supabase)",
     "The Chat page can now answer questions about this content",
   ];
 
   return (
-    <div className="min-h-screen bg-rm-trip-surface px-4 py-10 sm:px-8">
+    <div className="min-h-screen bg-rm-trip-surface">
+      <PageHeader title="Ingest Content" subtitle="Add documents and images to your knowledge base." />
+      <div className="px-4 py-8 sm:px-8">
       <div className="mx-auto">
-        {/* ── Page header ── */}
-        <div className="mb-8">
-          <div className="inline-flex items-center gap-2 bg-rm-trip-brand/10 text-rm-trip-brand text-xs font-semibold px-3 py-1 rounded-rm-trip-pill mb-3 uppercase tracking-wider">
-            Knowledge Base
-          </div>
-          <h1 className="font-rm-trip-heading text-rm-trip-h2 font-bold text-rm-trip-text mb-2">Ingest Content</h1>
-          <p className="text-rm-trip-text-muted text-rm-trip-body-sm leading-relaxed">
-            Add documents, notes, images, or web pages to your knowledge base. Content is automatically parsed, chunked,
-            and embedded for semantic search.
-          </p>
-        </div>
-
         {/* ── Tab switcher ── */}
         <div className="flex gap-1 mb-6 bg-white rounded-rm-trip-smooth p-1 shadow-rm-trip-card border border-gray-100 w-fit">
           {tabs.map((tab) => (
@@ -740,6 +731,7 @@ export function UploadPage() {
             ))}
           </ol>
         </div>
+      </div>
       </div>
     </div>
   );

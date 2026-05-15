@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { toast } from "sonner";
 import { Copy, Plus, Trash2, Globe, Key, Code2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -137,19 +138,10 @@ export function EmbedPage() {
   };
 
   return (
-    <div className="min-h-screen bg-rm-trip-surface px-4 py-10 sm:px-8">
+    <div className="min-h-screen bg-rm-trip-surface">
+      <PageHeader title="Widget Settings" subtitle="Embed the chat widget on any site. Localhost is always allowed." />
+      <div className="px-4 py-8 sm:px-8">
       <div className="mx-auto space-y-6">
-        <div className="mb-8">
-          <div className="inline-flex items-center gap-2 bg-rm-trip-brand/10 text-rm-trip-brand text-xs font-semibold px-3 py-1 rounded-rm-trip-pill mb-3 uppercase tracking-wider">
-            Embed
-          </div>
-          <h1 className="font-rm-trip-heading text-rm-trip-h2 font-bold text-rm-trip-text mb-2">Widget Settings</h1>
-          <p className="text-rm-trip-text-muted text-rm-trip-body-sm leading-relaxed">
-            Generate a widget key and whitelist your domains to embed the chat widget on external sites. Localhost is
-            always allowed for development.
-          </p>
-        </div>
-
         <div className="bg-white rounded-rm-trip-smooth shadow-rm-trip-card border border-gray-100 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
             <div className="h-7 w-7 rounded-lg bg-rm-trip-brand/10 flex items-center justify-center">
@@ -329,6 +321,7 @@ export function EmbedPage() {
             )}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
