@@ -96,6 +96,29 @@ export class AiService {
       },
     );
 
+    const searchWebPagesTool = tool(
+      async ({ query }: { query: string }): Promise<string> => {
+        this.logger.log(`Tool: search_web_pages("${query.slice(0, 80)}")`);
+        return this.retrievalService.searchWebPages(query, userId);
+      },
+      {
+        name: 'search_web_pages',
+        description:
+          'Search the ingested web page knowledge base for content relevant to a query. ' +
+          'Call this tool for EVERY factual question before answering — web pages may contain ' +
+          'the most up-to-date information about a topic. ' +
+          'You may call it multiple times with different queries for complex questions. ' +
+          'Returns the most relevant excerpts from ingested web pages.',
+        schema: z.object({
+          query: z.string().describe(
+            'A focused natural-language search query. ' +
+            'For multi-part questions, break into separate targeted queries ' +
+            'and call the tool once per query.',
+          ),
+        }),
+      },
+    );
+
     // ── 2. LLM ────────────────────────────────────────────────────────────────
     const llm = this.llmFactory.getChatModel();
 
@@ -108,7 +131,7 @@ export class AiService {
     // ── 4. Agent — LangGraph handles the tool-call loop automatically ─────────
     const agent = createAgent({
       model: llm,
-      tools: [searchDocumentsTool, searchImagesTool],
+      tools: [searchDocumentsTool, searchImagesTool, searchWebPagesTool],
       systemPrompt: systemPrompt,
     });
 

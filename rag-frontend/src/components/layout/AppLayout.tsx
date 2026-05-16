@@ -9,7 +9,8 @@ import {
   LogOut,
   Code2,
   Images,
-  UserRound
+  UserRound,
+  Globe
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Toaster } from '@/components/ui/sonner'
@@ -18,6 +19,7 @@ import { logout } from '@/lib/api'
 const navItems = [
   { to: '/upload', icon: FileUp, label: 'Upload Knowledge' },
   { to: '/pdfs', icon: Files, label: 'Manage PDFs' },
+  { to: '/web-pages', icon: Globe, label: 'Web Pages' },
   { to: '/images', icon: Images, label: 'Images' },
   { to: '/company', icon: Building2, label: 'Company' },
   { to: '/chat', icon: MessageSquare, label: 'Chat' },

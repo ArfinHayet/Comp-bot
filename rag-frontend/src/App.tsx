@@ -13,6 +13,7 @@ import { AuthCallbackPage } from './pages/AuthCallbackPage'
 import { EmbedPage } from './pages/EmbedPage'
 import { ImageUploadPage } from './pages/ImageUploadPage'
 import { ImagesPage } from './pages/ImagesPage'
+import { WebPagesPage } from './pages/WebPagesPage'
 import { isLoggedIn } from './lib/auth'
 
 export default function App() {
@@ -30,6 +31,7 @@ export default function App() {
             <Route index element={<Navigate to={isLoggedIn() ? '/chat' : '/login'} replace />} />
             <Route path="/upload" element={<UploadPage />} />
             <Route path="/pdfs" element={<PdfsPage />} />
+            <Route path="/web-pages" element={<WebPagesPage />} />
             <Route path="/images/upload" element={<ImageUploadPage />} />
             <Route path="/images" element={<ImagesPage />} />
             <Route path="/company" element={<CompanyPage />} />

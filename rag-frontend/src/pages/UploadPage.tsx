@@ -19,7 +19,7 @@ import {
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import { uploadPdf, type UploadResult, analyzeImage, saveImage, type ImageItem } from "@/lib/api";
+import { uploadPdf, type UploadResult, analyzeImage, saveImage, type ImageItem, ingestUrls, type IngestUrlResult } from "@/lib/api";
 
 type UploadState = "idle" | "uploading" | "analyzing" | "ready" | "saving" | "success" | "error";
 type ActiveTab = "pdf" | "markdown" | "url" | "image";
@@ -143,6 +143,7 @@ export function UploadPage() {
   const [urlState, setUrlState] = useState<UploadState>("idle");
   const [urlProgress, setUrlProgress] = useState(0);
   const [urls, setUrls] = useState<string[]>([""]);
+  const [urlResults, setUrlResults] = useState<IngestUrlResult[]>([]);
   const addUrl = () => setUrls((prev) => [...prev, ""]);
   const removeUrl = (i: number) => setUrls((prev) => prev.filter((_, idx) => idx !== i));
   const updateUrl = (i: number, val: string) => setUrls((prev) => prev.map((u, idx) => (idx === i ? val : u)));
@@ -154,23 +155,33 @@ export function UploadPage() {
     }
     setUrlState("uploading");
     setUrlProgress(0);
+    setUrlResults([]);
+    // Simulate progress while Jina fetch + embedding runs server-side
+    const interval = setInterval(() => setUrlProgress((p) => Math.min(p + 8, 85)), 800);
     try {
-      for (let i = 0; i <= 100; i += 10) {
-        await new Promise((r) => setTimeout(r, 100));
-        setUrlProgress(i);
-      }
+      const res = await ingestUrls(validUrls);
+      clearInterval(interval);
+      setUrlProgress(100);
+      setUrlResults(res.pages);
       setUrlState("success");
-      toast.success(`${validUrls.length} URL(s) ingested successfully`);
+      const succeeded = res.pages.filter((p) => p.success).length;
+      const failed = res.pages.length - succeeded;
+      if (succeeded > 0) toast.success(`${succeeded} URL${succeeded !== 1 ? "s" : ""} ingested successfully`);
+      if (failed > 0) toast.error(`${failed} URL${failed !== 1 ? "s" : ""} failed to ingest`);
       setUrls([""]);
-    } catch {
+    } catch (err: unknown) {
+      clearInterval(interval);
       setUrlState("error");
-      toast.error("Ingestion failed");
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "Ingestion failed";
+      toast.error(message);
     }
   };
   const resetUrl = () => {
     setUrlState("idle");
     setUrls([""]);
     setUrlProgress(0);
+    setUrlResults([]);
   };
 
   // ── Image state ─────────────────────────────────────────────────────────
@@ -256,7 +267,7 @@ export function UploadPage() {
   const tabs: { id: ActiveTab; label: string; icon: React.ReactNode; hint: string }[] = [
     { id: "pdf", label: "PDF", icon: <FileUp className="h-3.5 w-3.5" />, hint: "max 50 MB" },
     // { id: "markdown", label: "Markdown", icon: <FileText className="h-3.5 w-3.5" />, hint: "max 10 MB" },
-    // { id: "url", label: "URL", icon: <Link2 className="h-3.5 w-3.5" />, hint: "web pages" },
+    { id: "url", label: "URL", icon: <Link2 className="h-3.5 w-3.5" />, hint: "web pages" },
     { id: "image", label: "Image", icon: <ImageUp className="h-3.5 w-3.5" />, hint: "max 10 MB" },
   ];
 
@@ -539,9 +550,27 @@ export function UploadPage() {
                 Add another URL
               </button>
               {urlState === "uploading" && <ProgressBar value={urlProgress} />}
-              {urlState === "success" && (
+              {urlState === "success" && urlResults.length > 0 && (
                 <SuccessBanner>
-                  <p className="text-sm font-semibold text-emerald-800">URLs ingested successfully</p>
+                  <div className="space-y-1.5 flex-1">
+                    {urlResults.map((r, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        {r.success ? (
+                          <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                        ) : (
+                          <XCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-emerald-800 truncate">{r.url}</p>
+                          {r.success ? (
+                            <p className="text-xs text-emerald-700">{r.title} · {r.chunksCreated} chunks</p>
+                          ) : (
+                            <p className="text-xs text-red-600">{r.error}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </SuccessBanner>
               )}
               {urlState === "error" && <ErrorBanner msg="Ingestion failed. See the toast for details." />}

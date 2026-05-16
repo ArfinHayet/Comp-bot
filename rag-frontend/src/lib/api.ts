@@ -223,19 +223,51 @@ export const saveImage = (file: File, title: string, description: string): Promi
   form.append('file', file)
   form.append('title', title)
   form.append('description', description)
-  return api.post('/images', form).then((r) => r.data)
+  return api.post<ImageItem>('/images', form).then((r) => r.data)
 }
 
 export const listImages = (): Promise<ImageItem[]> =>
   api.get('/images').then((r) => r.data)
 
-export const updateImage = (
-  id: string,
-  data: { title?: string; description?: string },
-): Promise<ImageItem> => api.patch(`/images/${id}`, data).then((r) => r.data)
-
 export const deleteImage = (id: string) => api.delete(`/images/${id}`)
 
+export const updateImage = (id: string, data: { title: string; description: string }): Promise<ImageItem> =>
+  api.patch<ImageItem>(`/images/${id}`, data).then((r) => r.data)
+
+// ── Web Pages ─────────────────────────────────────────────────────────────────
+
+export interface WebPage {
+  id: string
+  url: string
+  title: string
+  chunksCreated: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface IngestUrlResult {
+  url: string
+  success: boolean
+  title?: string
+  chunksCreated?: number
+  webPageId?: string
+  error?: string
+}
+
+export interface IngestUrlsResponse {
+  pages: IngestUrlResult[]
+}
+
+export const ingestUrls = (urls: string[]): Promise<IngestUrlsResponse> =>
+  api.post<IngestUrlsResponse>('/admin/ingest-urls', { urls }).then((r) => r.data)
+
+export const listWebPages = (): Promise<WebPage[]> =>
+  api.get<WebPage[]>('/web-pages').then((r) => r.data)
+
+export const refetchWebPage = (id: string): Promise<{ webPageId: string; url: string; title: string; chunksCreated: number }> =>
+  api.post(`/web-pages/${id}/refetch`).then((r) => r.data)
+
+export const deleteWebPage = (id: string) => api.delete(`/web-pages/${id}`)
 
 // ── Chat History ───────────────────────────────────────────────────────────────
 

@@ -124,4 +124,41 @@ export class RetrievalService {
       )
       .join('\n\n');
   }
+
+  /**
+   * MCP tool executor for web page knowledge base.
+   * Embeds the query, runs pgvector cosine search on the web_page_chunks table,
+   * and returns matching excerpts as a plain string.
+   */
+  async searchWebPages(query: string, userId: string): Promise<string> {
+    this.logger.log(`Tool call: search_web_pages("${query.slice(0, 80)}") for user ${userId}`);
+
+    const queryVector = await this.embeddings.embedQuery(query);
+    const topK = this.config.get<number>('rag.topK');
+
+    const rows: { content: string; url: string; distance: string }[] =
+      await this.dataSource.query(
+        `SELECT content, url,
+                (embedding::vector <=> $1::vector) AS distance
+         FROM web_page_chunks
+         WHERE "userId" = $3
+         ORDER BY distance ASC
+         LIMIT $2`,
+        [JSON.stringify(queryVector), topK, userId],
+      );
+
+    const relevant = rows.filter((r) => parseFloat(r.distance) < DOC_THRESHOLD);
+
+    if (relevant.length === 0) {
+      this.logger.log(`No relevant web page chunks found for: "${query}"`);
+      return 'No relevant web page content found for this query.';
+    }
+
+    return relevant
+      .map(
+        (r, i) =>
+          `[Web Page Excerpt ${i + 1} — ${r.url}]\n${r.content}`,
+      )
+      .join('\n\n');
+  }
 }
