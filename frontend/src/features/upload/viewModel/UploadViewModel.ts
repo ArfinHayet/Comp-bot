@@ -1,0 +1,62 @@
+import type { ChangeEvent, DragEvent, RefObject } from "react";
+import type { ActiveUploadTab } from "../model/entities/ActiveUploadTab";
+import type { UploadState } from "../model/entities/UploadState";
+import type { ImageUploadResult, IngestUrlResult, PdfUploadResult, UrlScanItem } from "../model/entities/UploadResults";
+
+export interface UploadActionResult {
+  success: boolean;
+  message?: string;
+  errorMessage?: string;
+}
+
+export interface UploadViewModel {
+  activeTab: ActiveUploadTab;
+  setActiveTab(tab: ActiveUploadTab): void;
+  pdfState: UploadState;
+  pdfProgress: number;
+  pdfDragging: boolean;
+  selectedPdf: File | null;
+  pdfResult: PdfUploadResult | null;
+  pdfInputRef: RefObject<HTMLInputElement | null>;
+  setPdfDragging(value: boolean): void;
+  handlePdfDrop(event: DragEvent<HTMLDivElement>): UploadActionResult;
+  handlePdfChange(event: ChangeEvent<HTMLInputElement>): UploadActionResult;
+  uploadSelectedPdf(): Promise<UploadActionResult>;
+  resetPdf(): void;
+  mdState: UploadState;
+  mdProgress: number;
+  mdDragging: boolean;
+  selectedMd: File | null;
+  mdInputRef: RefObject<HTMLInputElement | null>;
+  setMdDragging(value: boolean): void;
+  handleMdDrop(event: DragEvent<HTMLDivElement>): UploadActionResult;
+  handleMdChange(event: ChangeEvent<HTMLInputElement>): UploadActionResult;
+  uploadSelectedMarkdown(): Promise<UploadActionResult>;
+  resetMarkdown(): void;
+  urlState: UploadState;
+  urlProgress: number;
+  urls: string[];
+  validUrls: string[];
+  urlResults: IngestUrlResult[];
+  urlScanItems: UrlScanItem[];
+  addUrl(): void;
+  removeUrl(index: number): void;
+  updateUrl(index: number, value: string): void;
+  ingestUrls(): Promise<UploadActionResult>;
+  resetUrls(): void;
+  imgState: UploadState;
+  imgDragging: boolean;
+  selectedImg: File | null;
+  imgPreview: string | null;
+  imgTitle: string;
+  imgDesc: string;
+  imgResult: ImageUploadResult | null;
+  imgInputRef: RefObject<HTMLInputElement | null>;
+  setImgDragging(value: boolean): void;
+  setImgTitle(value: string): void;
+  setImgDesc(value: string): void;
+  handleImgDrop(event: DragEvent<HTMLDivElement>): Promise<UploadActionResult>;
+  handleImgChange(event: ChangeEvent<HTMLInputElement>): Promise<UploadActionResult>;
+  saveSelectedImage(): Promise<UploadActionResult>;
+  resetImage(): void;
+}

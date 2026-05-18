@@ -1,0 +1,41 @@
+import type { EmbedRepository } from "../repositories/EmbedRepository";
+
+export class EmbedService {
+  private readonly repository: EmbedRepository;
+
+  constructor(repository: EmbedRepository) {
+    this.repository = repository;
+  }
+
+  listWidgetKeys() {
+    return this.repository.listWidgetKeys();
+  }
+
+  createWidgetKey(label: string) {
+    return this.repository.createWidgetKey(label.trim() || "My Widget");
+  }
+
+  deleteWidgetKey(id: string) {
+    return this.repository.deleteWidgetKey(id);
+  }
+
+  listAllowedDomains() {
+    return this.repository.listAllowedDomains();
+  }
+
+  createAllowedDomain(domain: string) {
+    return this.repository.createAllowedDomain(domain.trim());
+  }
+
+  deleteAllowedDomain(id: string) {
+    return this.repository.deleteAllowedDomain(id);
+  }
+
+  createSnippet(key: string, apiUrl: string) {
+    return `<script src="${apiUrl}/widget.js" data-key="${key}" data-api="${apiUrl}"></script>`;
+  }
+
+  createSnippetTemplate(apiUrl: string) {
+    return `<script src="${apiUrl}/widget.js"\n  data-key="YOUR_KEY"\n  data-api="${apiUrl}">\n</script>`;
+  }
+}
