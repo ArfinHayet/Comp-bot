@@ -60,7 +60,7 @@ export function usePdfViewModel(): PdfViewModel {
       await pdfService.deletePdf(deleteTarget.id);
       setDeleteTarget(null);
       await loadPdfs();
-      return { success: true, message: "PDF and its chunks deleted" };
+      return { success: true, message: "PDF deleted" };
     } catch {
       return { success: false, errorMessage: "Delete failed" };
     } finally {

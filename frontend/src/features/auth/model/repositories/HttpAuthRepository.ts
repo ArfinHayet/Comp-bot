@@ -1,16 +1,24 @@
-import { login, signup } from "@/lib/api";
+import { api } from "@/lib/api";
+import { isLoggedIn, logout, setRefreshToken, setToken } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import type { LoginRequestDto } from "../dto/LoginRequestDto";
 import type { SignupRequestDto } from "../dto/SignupRequestDto";
 import type { AuthRepository } from "./AuthRepository";
 
+interface LoginResponseDto {
+  access_token: string;
+  refresh_token: string;
+}
+
 export class HttpAuthRepository implements AuthRepository {
   async login(request: LoginRequestDto): Promise<void> {
-    await login(request.email, request.password);
+    const response = await api.post<LoginResponseDto>("/auth/login", request);
+    setToken(response.data.access_token);
+    setRefreshToken(response.data.refresh_token);
   }
 
   async signup(request: SignupRequestDto): Promise<void> {
-    await signup(request.email, request.password);
+    await api.post("/auth/signup", request);
   }
 
   async signInWithGoogle(redirectTo: string): Promise<void> {
@@ -22,5 +30,13 @@ export class HttpAuthRepository implements AuthRepository {
     if (error) {
       throw new Error(error.message);
     }
+  }
+
+  isAuthenticated(): boolean {
+    return isLoggedIn();
+  }
+
+  logout(): void {
+    logout();
   }
 }

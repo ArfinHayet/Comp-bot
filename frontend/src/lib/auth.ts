@@ -14,3 +14,8 @@ export const setRefreshToken = (token: string): void => localStorage.setItem(REF
 export const clearRefreshToken = (): void => localStorage.removeItem(REFRESH_KEY)
 
 export const isLoggedIn = (): boolean => !!getToken()
+
+export const logout = (): void => {
+  clearToken()
+  clearRefreshToken()
+}

@@ -30,8 +30,8 @@ export function PdfsPage() {
   return (
     <div className="min-h-screen bg-rm-trip-surface">
       <PageHeader
-        title="Uploaded PDFs"
-        subtitle={vm.loading ? "Loading..." : `${vm.pdfs.length} document${vm.pdfs.length !== 1 ? "s" : ""} in the knowledge base`}
+        title="Documents"
+        subtitle={vm.loading ? "Loading..." : `${vm.pdfs.length} document${vm.pdfs.length !== 1 ? "s" : ""} available to your assistant`}
       >
         <button
           onClick={() => void refresh()}
@@ -138,7 +138,7 @@ export function PdfsPage() {
             <DialogTitle>Delete PDF?</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-rm-trip-text-muted">
-            This will permanently delete <span className="font-bold text-rm-trip-text">{vm.deleteTarget?.fileName}</span> and all its chunks.
+            This will permanently delete <span className="font-bold text-rm-trip-text">{vm.deleteTarget?.fileName}</span> and its indexed content.
           </p>
           <DialogFooter>
             <button onClick={vm.cancelDelete} className="rounded-rm-trip-smooth border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-rm-trip-text-muted">

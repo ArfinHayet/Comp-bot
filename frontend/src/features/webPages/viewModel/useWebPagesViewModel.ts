@@ -45,7 +45,7 @@ export function useWebPagesViewModel(): WebPagesViewModel {
             : item,
         ),
       );
-      return { success: true, message: `Refetched - ${result.chunksCreated} chunks updated` };
+      return { success: true, message: `${result.chunksCreated} content sections updated` };
     } catch {
       return { success: false, errorMessage: "Refetch failed" };
     } finally {
@@ -63,7 +63,7 @@ export function useWebPagesViewModel(): WebPagesViewModel {
       await webPageService.deleteWebPage(deleteTarget.id);
       setDeleteTarget(null);
       await loadPages();
-      return { success: true, message: "Web page and its chunks deleted" };
+      return { success: true, message: "Web page deleted" };
     } catch {
       return { success: false, errorMessage: "Delete failed" };
     } finally {

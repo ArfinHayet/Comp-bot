@@ -1,17 +1,19 @@
-import { deleteImage, listImages, updateImage } from "@/lib/api";
+import { api } from "@/lib/api";
 import type { KnowledgeImage } from "../entities/KnowledgeImage";
 import type { ImageRepository } from "./ImageRepository";
 
 export class HttpImageRepository implements ImageRepository {
-  list(): Promise<KnowledgeImage[]> {
-    return listImages();
+  async list(): Promise<KnowledgeImage[]> {
+    const response = await api.get<KnowledgeImage[]>("/images");
+    return response.data;
   }
 
-  update(id: string, data: { title: string; description: string }): Promise<KnowledgeImage> {
-    return updateImage(id, data);
+  async update(id: string, data: { title: string; description: string }): Promise<KnowledgeImage> {
+    const response = await api.patch<KnowledgeImage>(`/images/${id}`, data);
+    return response.data;
   }
 
   async delete(id: string): Promise<void> {
-    await deleteImage(id);
+    await api.delete(`/images/${id}`);
   }
 }

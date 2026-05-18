@@ -16,7 +16,7 @@ export function EmbedPage() {
 
   return (
     <div className="min-h-screen bg-rm-trip-surface">
-      <PageHeader title="Widget Settings" subtitle="Embed the chat widget on any site. Localhost is always allowed." />
+      <PageHeader title="Website Widget" subtitle="Create widget keys and control which websites can use your assistant." />
       <div className="px-4 py-8 sm:px-8">
         <div className="mx-auto space-y-6">
           <section className="overflow-hidden rounded-rm-trip-smooth border border-gray-100 bg-white shadow-rm-trip-card">
@@ -25,7 +25,7 @@ export function EmbedPage() {
               <div className="flex flex-col gap-2 sm:flex-row">
                 <input
                   type="text"
-                  placeholder="Label (e.g. My Website)"
+                  placeholder="Label, for example: Marketing site"
                   value={vm.newLabel}
                   onChange={(event) => vm.setNewLabel(event.target.value)}
                   onKeyDown={(event) => event.key === "Enter" && void run(vm.createKey())}
@@ -112,8 +112,7 @@ export function EmbedPage() {
             <SectionHeader icon={<Globe className="h-3.5 w-3.5 text-rm-trip-brand" />} title="Allowed Domains" />
             <div className="space-y-5 p-6">
               <p className="text-sm leading-relaxed text-rm-trip-text-muted">
-                Add the exact origin of each site that may embed your widget (e.g. https://example.com). Localhost is
-                always allowed automatically.
+                Add the exact website origin allowed to use your assistant, for example https://example.com.
               </p>
               <div className="flex flex-col gap-2 sm:flex-row">
                 <input
@@ -136,7 +135,7 @@ export function EmbedPage() {
               {vm.loadingDomains ? (
                 <TableSkeleton columns="grid-cols-[2fr_1fr_48px]" />
               ) : vm.domains.length === 0 ? (
-                <p className="text-sm text-rm-trip-text-muted">No domains whitelisted yet.</p>
+                <p className="text-sm text-rm-trip-text-muted">No allowed domains yet.</p>
               ) : (
                 <div className="overflow-hidden rounded-rm-trip-smooth border border-gray-100">
                   <table className="w-full text-sm">

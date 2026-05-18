@@ -15,7 +15,7 @@ export function PdfUploadPanel({ viewModel, onUpload, onFileResult }: PdfUploadP
     <div className="p-6 space-y-5">
       <div>
         <h2 className="font-rm-trip-heading font-semibold text-rm-trip-text text-base mb-0.5">Upload PDF</h2>
-        <p className="text-rm-trip-text-muted text-xs">PDF only · max 50 MB</p>
+        <p className="text-rm-trip-text-muted text-xs">PDF only | max 50 MB</p>
       </div>
       <div
         className={cn(
@@ -74,7 +74,8 @@ export function PdfUploadPanel({ viewModel, onUpload, onFileResult }: PdfUploadP
           <div>
             <p className="font-semibold text-emerald-800 text-sm">{viewModel.pdfResult.fileName}</p>
             <p className="text-xs text-emerald-700 mt-0.5">
-              {viewModel.pdfResult.chunksCreated} chunks created · ID: {viewModel.pdfResult.pdfId.slice(0, 8)}...
+              {viewModel.pdfResult.chunksCreated} content sections created | ID:{" "}
+              {viewModel.pdfResult.pdfId.slice(0, 8)}...
             </p>
           </div>
         </SuccessBanner>
@@ -87,7 +88,7 @@ export function PdfUploadPanel({ viewModel, onUpload, onFileResult }: PdfUploadP
           className="flex items-center gap-2 bg-rm-trip-brand hover:bg-rm-trip-brand-dark text-white font-semibold py-2.5 px-5 rounded-rm-trip-smooth shadow-rm-trip-card transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
         >
           <Upload className="h-4 w-4" />
-          {viewModel.pdfState === "uploading" ? "Processing..." : "Upload & Ingest"}
+          {viewModel.pdfState === "uploading" ? "Processing..." : "Upload document"}
         </button>
         {(viewModel.selectedPdf || viewModel.pdfState !== "idle") && (
           <button

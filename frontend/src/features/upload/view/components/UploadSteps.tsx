@@ -1,6 +1,6 @@
 const steps = [
-  "Text is extracted and cleaned of invalid characters",
-  "The Chat page can now answer questions about this content",
+  "Content is prepared and organized for search",
+  "Chat can answer questions using the approved content",
 ];
 
 export function UploadSteps() {

@@ -38,7 +38,7 @@ export function LoginPage() {
   return (
     <AuthSurface>
       <div className="w-full max-w-md rounded-rm-trip-smooth border border-white/80 bg-white/95 p-7 shadow-[0_24px_70px_rgba(15,23,42,0.16)] backdrop-blur sm:p-9">
-        <AuthBrandHeader title="Sign in to your account" subtitle="Access your knowledge base workspace." />
+        <AuthBrandHeader title="Sign in to ReplyMate AI" subtitle="Manage your business content and assistant settings." />
 
         <form onSubmit={(event) => void handleSubmit(event)} className="space-y-4">
           <div>

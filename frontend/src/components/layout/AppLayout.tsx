@@ -14,25 +14,26 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Toaster } from '@/components/ui/sonner'
-import { logout } from '@/lib/api'
+import { useLogoutViewModel } from '@/features/auth/viewModel/useLogoutViewModel'
 
 const navItems = [
-  { to: '/upload', icon: FileUp, label: 'Upload Knowledge' },
-  { to: '/pdfs', icon: Files, label: 'Manage PDFs' },
+  { to: '/upload', icon: FileUp, label: 'Add Content' },
+  { to: '/pdfs', icon: Files, label: 'Documents' },
   { to: '/web-pages', icon: Globe, label: 'Web Pages' },
   { to: '/images', icon: Images, label: 'Images' },
   { to: '/company', icon: Building2, label: 'Company' },
   { to: '/chat', icon: MessageSquare, label: 'Chat' },
   { to: '/chat-history', icon: History, label: 'Chat History' },
-  { to: '/embed', icon: Code2, label: 'Embed Widget' },
+  { to: '/embed', icon: Code2, label: 'Website Widget' },
   { to: '/profile', icon: UserRound, label: 'Profile' }
 ]
 
 export function AppLayout () {
   const navigate = useNavigate()
+  const logoutViewModel = useLogoutViewModel()
 
   const handleLogout = () => {
-    logout()
+    logoutViewModel.logout()
     navigate('/login', { replace: true })
   }
 
@@ -45,10 +46,10 @@ export function AppLayout () {
           <img src='/favicon.svg' alt='Logo' className='h-9 w-9' />
           <div>
             <p className='font-rm-trip-heading text-sm font-bold text-rm-trip-text leading-none'>
-              ReplyMate Ai
+              ReplyMate AI
             </p>
             <p className='text-xs text-rm-trip-text-muted mt-0.5'>
-              Your personal AI assistant
+              AI support for your business
             </p>
           </div>
         </div>
@@ -82,7 +83,7 @@ export function AppLayout () {
             className='w-full flex items-center gap-3 px-3 py-2.5 rounded-rm-trip-smooth text-sm font-semibold text-rm-trip-text-muted hover:text-rm-trip-state-error hover:bg-red-50 transition-all duration-150'
           >
             <LogOut className='h-4 w-4 shrink-0' />
-            Sign Out
+            Sign out
           </button>
         </div>
       </aside>
@@ -105,7 +106,7 @@ export function AppLayout () {
             >
               <Icon className='h-4 w-4 shrink-0' />
               <span className='max-w-full truncate'>
-                {label.replace(' Knowledge', '')}
+                {label}
               </span>
             </NavLink>
           ))}

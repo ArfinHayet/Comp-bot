@@ -24,4 +24,12 @@ export class AuthService {
   signInWithGoogle(origin: string) {
     return this.authRepository.signInWithGoogle(`${origin}/auth/callback`);
   }
+
+  isAuthenticated() {
+    return this.authRepository.isAuthenticated();
+  }
+
+  logout() {
+    this.authRepository.logout();
+  }
 }

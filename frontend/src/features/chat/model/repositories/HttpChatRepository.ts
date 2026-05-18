@@ -1,10 +1,11 @@
-import { sendChat } from "@/lib/api";
+import { api } from "@/lib/api";
 import type { SendChatRequestDto } from "../dto/SendChatRequestDto";
 import type { SendChatResponseDto } from "../dto/SendChatResponseDto";
 import type { ChatRepository } from "./ChatRepository";
 
 export class HttpChatRepository implements ChatRepository {
   async sendMessage(request: SendChatRequestDto): Promise<SendChatResponseDto> {
-    return sendChat(request.message, request.sessionId);
+    const response = await api.post<SendChatResponseDto>("/chat", request);
+    return response.data;
   }
 }

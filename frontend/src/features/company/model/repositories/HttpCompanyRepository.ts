@@ -1,27 +1,25 @@
-import {
-  createCompany,
-  deleteCompany,
-  listCompanies,
-  updateCompany,
-} from "@/lib/api";
+import { api } from "@/lib/api";
 import type { CompanyUpsertDto } from "../dto/CompanyUpsertDto";
 import type { Company } from "../entities/Company";
 import type { CompanyRepository } from "./CompanyRepository";
 
 export class HttpCompanyRepository implements CompanyRepository {
   async list(): Promise<Company[]> {
-    return listCompanies();
+    const response = await api.get<Company[]>("/company");
+    return response.data;
   }
 
   async create(data: CompanyUpsertDto): Promise<Company> {
-    return createCompany(data);
+    const response = await api.post<Company>("/company", data);
+    return response.data;
   }
 
   async update(id: string, data: Partial<CompanyUpsertDto>): Promise<Company> {
-    return updateCompany(id, data);
+    const response = await api.patch<Company>(`/company/${id}`, data);
+    return response.data;
   }
 
   async delete(id: string): Promise<void> {
-    await deleteCompany(id);
+    await api.delete(`/company/${id}`);
   }
 }

@@ -72,7 +72,7 @@ export function useUploadViewModel(): UploadViewModel {
       setPdfState("success");
       setSelectedPdf(null);
       if (pdfInputRef.current) pdfInputRef.current.value = "";
-      return { success: true, message: `Ingested ${result.chunksCreated} chunks successfully` };
+      return { success: true, message: `Added ${result.chunksCreated} content sections` };
     } catch (error: unknown) {
       setPdfState("error");
       return { success: false, errorMessage: getUploadErrorMessage(error, "Upload failed") };
@@ -117,7 +117,7 @@ export function useUploadViewModel(): UploadViewModel {
       setMdState("success");
       setSelectedMd(null);
       if (mdInputRef.current) mdInputRef.current.value = "";
-      return { success: true, message: "Markdown ingested successfully" };
+      return { success: true, message: "Markdown file added" };
     } catch {
       setMdState("error");
       return { success: false, errorMessage: "Upload failed" };
@@ -184,12 +184,12 @@ export function useUploadViewModel(): UploadViewModel {
       const failed = result.pages.length - succeeded;
       return {
         success: failed === 0,
-        message: succeeded > 0 ? `${succeeded} URL${succeeded !== 1 ? "s" : ""} ingested successfully` : undefined,
-        errorMessage: failed > 0 ? `${failed} URL${failed !== 1 ? "s" : ""} failed to ingest` : undefined,
+        message: succeeded > 0 ? `${succeeded} URL${succeeded !== 1 ? "s" : ""} added` : undefined,
+        errorMessage: failed > 0 ? `${failed} URL${failed !== 1 ? "s" : ""} could not be added` : undefined,
       };
     } catch (error: unknown) {
       setUrlState("error");
-      return { success: false, errorMessage: error instanceof Error ? error.message : "Ingestion failed" };
+      return { success: false, errorMessage: error instanceof Error ? error.message : "Unable to add URLs" };
     }
   };
 
@@ -244,7 +244,7 @@ export function useUploadViewModel(): UploadViewModel {
       const result = await uploadService.saveImage(selectedImg, imgTitle, imgDesc);
       setImgResult(result);
       setImgState("success");
-      return { success: true, message: "Image saved to knowledge base" };
+      return { success: true, message: "Image added" };
     } catch {
       setImgState("error");
       return { success: false, errorMessage: "Failed to save image" };

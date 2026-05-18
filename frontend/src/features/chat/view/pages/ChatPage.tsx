@@ -17,7 +17,7 @@ export function ChatPage() {
   return (
     <div className="flex flex-col h-full" style={{ background: "var(--chat-bg, #F7F8FC)" }}>
       <ChatStyles />
-      <PageHeader title="Chat" subtitle="Powered by your documents">
+      <PageHeader title="Chat" subtitle="Ask questions using your approved business content.">
         <div className="flex items-center gap-2">
           <span className="status-dot">Online</span>
           {viewModel.messages.length > 0 && (

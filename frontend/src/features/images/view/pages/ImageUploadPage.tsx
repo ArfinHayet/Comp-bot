@@ -20,7 +20,7 @@ export function ImageUploadPage() {
 
   return (
     <div className="min-h-screen bg-rm-trip-surface">
-      <PageHeader title="Upload Image" subtitle="AI auto-generates title and description which you can edit before saving." />
+      <PageHeader title="Upload Image" subtitle="ReplyMate AI drafts a title and description you can review before saving." />
       <div className="max-w-2xl p-8">
         <Card>
           <CardContent className="space-y-4 pt-6">
@@ -78,7 +78,7 @@ export function ImageUploadPage() {
                 <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
                 <div>
                   <p className="font-medium text-emerald-800">{vm.imgResult.title}</p>
-                  <p className="text-sm text-emerald-700">Saved - ID: {vm.imgResult.id.slice(0, 8)}...</p>
+                  <p className="text-sm text-emerald-700">Saved to your workspace</p>
                 </div>
               </div>
             )}
@@ -94,7 +94,7 @@ export function ImageUploadPage() {
               {vm.imgState === "ready" && (
                 <Button onClick={() => void save()} disabled={!vm.imgTitle.trim() || !vm.imgDesc.trim()} className="gap-2">
                   <Save className="h-4 w-4" />
-                  Save to Knowledge Base
+                  Save image
                 </Button>
               )}
               {vm.imgState === "saving" && (
@@ -118,10 +118,10 @@ export function ImageUploadPage() {
           </CardHeader>
           <CardContent>
             <ol className="list-inside list-decimal space-y-1 text-sm text-muted-foreground">
-              <li>Image binary is uploaded to storage</li>
-              <li>Title and description are indexed for semantic search</li>
-              <li>Record details and storage URL are saved in the database</li>
-              <li>The Chat page can answer questions about this image content</li>
+              <li>The image is uploaded securely</li>
+              <li>The title and description are prepared for search</li>
+              <li>The image details are saved to your workspace</li>
+              <li>Chat can answer questions using this image content</li>
             </ol>
           </CardContent>
         </Card>

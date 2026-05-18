@@ -50,7 +50,7 @@ export function CompanyFormDialog({
             <input
               value={form.name}
               onChange={(event) => onNameChange(event.target.value)}
-              placeholder="e.g. Kaz Software"
+              placeholder="For example: Acme Support"
               className="w-full px-4 py-2.5 border border-gray-200 rounded-rm-trip-smooth text-sm text-rm-trip-text placeholder:text-gray-400 focus-rm-trip-highlight bg-gray-50 focus:bg-white transition-all duration-150 outline-none"
             />
           </div>

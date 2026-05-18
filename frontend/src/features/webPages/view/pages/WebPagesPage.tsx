@@ -16,8 +16,8 @@ export function WebPagesPage() {
   return (
     <div className="min-h-screen bg-rm-trip-surface">
       <PageHeader
-        title="Ingested Web Pages"
-        subtitle={vm.loading ? "Loading..." : `${vm.pages.length} site${vm.pages.length !== 1 ? "s" : ""} in the knowledge base`}
+        title="Web Pages"
+        subtitle={vm.loading ? "Loading..." : `${vm.pages.length} site${vm.pages.length !== 1 ? "s" : ""} available to your assistant`}
       >
         <button onClick={() => void refresh()} disabled={vm.loading} className="flex items-center gap-2 rounded-rm-trip-smooth border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-rm-trip-text-muted shadow-sm disabled:opacity-50">
           <RefreshCw className={`h-3.5 w-3.5 ${vm.loading ? "animate-spin" : ""}`} />
@@ -28,9 +28,9 @@ export function WebPagesPage() {
       <div className="mx-auto space-y-6 px-8 py-8">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <Stat label="Sites" value={vm.loading ? <Skeleton className="h-7 w-8" /> : vm.pages.length} />
-          <Stat label="Total Chunks" value={vm.loading ? <Skeleton className="h-7 w-12" /> : vm.pages.reduce((sum, page) => sum + page.chunksCreated, 0)} />
+          <Stat label="Content Sections" value={vm.loading ? <Skeleton className="h-7 w-12" /> : vm.pages.reduce((sum, page) => sum + page.chunksCreated, 0)} />
           <Stat label="Crawled Pages" value={vm.loading ? <Skeleton className="h-7 w-12" /> : vm.pages.reduce((sum, page) => sum + (page.pagesFetched ?? 1), 0)} />
-          <Stat label="Last Ingested" value={vm.loading ? <Skeleton className="h-6 w-28" /> : vm.pages[0] ? new Date(vm.pages[0].createdAt).toLocaleDateString() : "None yet"} />
+          <Stat label="Last Added" value={vm.loading ? <Skeleton className="h-6 w-28" /> : vm.pages[0] ? new Date(vm.pages[0].createdAt).toLocaleDateString() : "None yet"} />
         </div>
 
         <DataTable
@@ -61,7 +61,7 @@ export function WebPagesPage() {
               label: "Indexed",
               render: (page) => (
                 <div className="flex flex-col items-start gap-1">
-                  <span className="rounded-full border border-blue-100 bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-rm-trip-brand">{page.chunksCreated} chunks</span>
+                  <span className="rounded-full border border-blue-100 bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-rm-trip-brand">{page.chunksCreated} sections</span>
                   <span className="text-xs text-rm-trip-text-muted">
                     {page.pagesFetched ?? 1} page{(page.pagesFetched ?? 1) !== 1 ? "s" : ""}
                     {(page.pagesFailed ?? 0) > 0 ? ` - ${page.pagesFailed} failed` : ""}
@@ -101,7 +101,7 @@ export function WebPagesPage() {
               </div>
               <div>
                 <p className="font-rm-trip-heading font-bold text-rm-trip-text">No web pages yet</p>
-                <p className="mt-1 text-sm text-rm-trip-text-muted">Go to Upload Knowledge and use the URL tab.</p>
+                <p className="mt-1 text-sm text-rm-trip-text-muted">Go to Add Content and use the URL tab.</p>
               </div>
             </div>
           }
@@ -114,7 +114,7 @@ export function WebPagesPage() {
             <DialogTitle>Delete web page?</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-rm-trip-text-muted">
-            This will permanently delete <span className="break-all font-semibold text-rm-trip-text">{vm.deleteTarget?.title || vm.deleteTarget?.url}</span> and all its embedded chunks.
+            This will permanently delete <span className="break-all font-semibold text-rm-trip-text">{vm.deleteTarget?.title || vm.deleteTarget?.url}</span> and its indexed content.
           </p>
           <DialogFooter>
             <button onClick={vm.cancelDelete} className="rounded-rm-trip-smooth border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-rm-trip-text-muted">

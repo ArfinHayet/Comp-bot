@@ -1,36 +1,33 @@
-import {
-  createAllowedDomain,
-  createWidgetKey,
-  deleteAllowedDomain,
-  deleteWidgetKey,
-  listAllowedDomains,
-  listWidgetKeys,
-} from "@/lib/api";
+import { api } from "@/lib/api";
 import type { AllowedDomain, WidgetKey } from "../entities/WidgetSettings";
 import type { EmbedRepository } from "./EmbedRepository";
 
 export class HttpEmbedRepository implements EmbedRepository {
-  listWidgetKeys(): Promise<WidgetKey[]> {
-    return listWidgetKeys();
+  async listWidgetKeys(): Promise<WidgetKey[]> {
+    const response = await api.get<WidgetKey[]>("/widget/keys");
+    return response.data;
   }
 
-  createWidgetKey(label: string): Promise<WidgetKey> {
-    return createWidgetKey(label);
+  async createWidgetKey(label: string): Promise<WidgetKey> {
+    const response = await api.post<WidgetKey>("/widget/keys", { label });
+    return response.data;
   }
 
   async deleteWidgetKey(id: string): Promise<void> {
-    await deleteWidgetKey(id);
+    await api.delete(`/widget/keys/${id}`);
   }
 
-  listAllowedDomains(): Promise<AllowedDomain[]> {
-    return listAllowedDomains();
+  async listAllowedDomains(): Promise<AllowedDomain[]> {
+    const response = await api.get<AllowedDomain[]>("/widget/domains");
+    return response.data;
   }
 
-  createAllowedDomain(domain: string): Promise<AllowedDomain> {
-    return createAllowedDomain(domain);
+  async createAllowedDomain(domain: string): Promise<AllowedDomain> {
+    const response = await api.post<AllowedDomain>("/widget/domains", { domain });
+    return response.data;
   }
 
   async deleteAllowedDomain(id: string): Promise<void> {
-    await deleteAllowedDomain(id);
+    await api.delete(`/widget/domains/${id}`);
   }
 }

@@ -11,8 +11,8 @@ export function UrlUploadPanel({ viewModel, onIngest }: UrlUploadPanelProps) {
   return (
     <div className="p-6 space-y-5">
       <div>
-        <h2 className="font-rm-trip-heading font-semibold text-rm-trip-text text-base mb-0.5">Ingest from URLs</h2>
-        <p className="text-rm-trip-text-muted text-xs">Add one or more web pages to extract and embed content</p>
+        <h2 className="font-rm-trip-heading font-semibold text-rm-trip-text text-base mb-0.5">Add web pages</h2>
+        <p className="text-rm-trip-text-muted text-xs">Add one or more pages your assistant can reference</p>
       </div>
       <div className="space-y-2.5">
         {viewModel.urls.map((url, index) => (
@@ -49,7 +49,7 @@ export function UrlUploadPanel({ viewModel, onIngest }: UrlUploadPanelProps) {
       {(viewModel.urlState === "uploading" || viewModel.urlState === "success") && viewModel.urlScanItems.length > 0 && (
         <div className="rounded-rm-trip-smooth border border-blue-100 bg-blue-50/60 p-4">
           <div className="flex items-center justify-between gap-3 mb-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-rm-trip-brand">Live crawl</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-rm-trip-brand">Live scan</p>
             <p className="text-xs text-rm-trip-text-muted">
               {viewModel.urlScanItems.length} page{viewModel.urlScanItems.length !== 1 ? "s" : ""} seen
             </p>
@@ -89,9 +89,9 @@ export function UrlUploadPanel({ viewModel, onIngest }: UrlUploadPanelProps) {
                   <p className="text-sm font-semibold text-emerald-800 truncate">{result.url}</p>
                   {result.success ? (
                     <p className="text-xs text-emerald-700">
-                      {result.title} · {result.pagesFetched ?? 1} page{(result.pagesFetched ?? 1) !== 1 ? "s" : ""} ·{" "}
-                      {result.chunksCreated} chunks
-                      {(result.pagesFailed ?? 0) > 0 ? ` · ${result.pagesFailed} failed` : ""}
+                      {result.title} | {result.pagesFetched ?? 1} page
+                      {(result.pagesFetched ?? 1) !== 1 ? "s" : ""} | {result.chunksCreated} sections
+                      {(result.pagesFailed ?? 0) > 0 ? ` | ${result.pagesFailed} failed` : ""}
                     </p>
                   ) : (
                     <p className="text-xs text-red-600">{result.error}</p>
@@ -102,7 +102,7 @@ export function UrlUploadPanel({ viewModel, onIngest }: UrlUploadPanelProps) {
           </div>
         </SuccessBanner>
       )}
-      {viewModel.urlState === "error" && <ErrorBanner msg="Ingestion failed. See the toast for details." />}
+      {viewModel.urlState === "error" && <ErrorBanner msg="Unable to add URLs. See the toast for details." />}
       <div className="flex gap-2 pt-1">
         <button
           onClick={onIngest}
@@ -112,7 +112,7 @@ export function UrlUploadPanel({ viewModel, onIngest }: UrlUploadPanelProps) {
           <ArrowRight className="h-4 w-4" />
           {viewModel.urlState === "uploading"
             ? "Processing..."
-            : `Ingest ${viewModel.validUrls.length > 0 ? viewModel.validUrls.length : ""} URL${
+            : `Add ${viewModel.validUrls.length > 0 ? viewModel.validUrls.length : ""} URL${
                 viewModel.validUrls.length !== 1 ? "s" : ""
               }`}
         </button>

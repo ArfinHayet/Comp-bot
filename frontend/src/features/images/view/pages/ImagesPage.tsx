@@ -18,7 +18,7 @@ export function ImagesPage() {
     <div className="min-h-screen bg-rm-trip-surface">
       <PageHeader
         title="Images"
-        subtitle={vm.loading ? "Loading..." : `${vm.images.length} image${vm.images.length !== 1 ? "s" : ""} in the knowledge base`}
+        subtitle={vm.loading ? "Loading..." : `${vm.images.length} image${vm.images.length !== 1 ? "s" : ""} available to your assistant`}
       >
         <button
           onClick={() => void refresh()}
@@ -92,7 +92,7 @@ export function ImagesPage() {
               </div>
               <div>
                 <p className="font-rm-trip-heading font-bold text-rm-trip-text">No images uploaded yet</p>
-                <p className="mt-1 text-sm text-rm-trip-text-muted">Use the Upload page to add visual knowledge.</p>
+                <p className="mt-1 text-sm text-rm-trip-text-muted">Use Add Content to upload images.</p>
               </div>
             </div>
           }

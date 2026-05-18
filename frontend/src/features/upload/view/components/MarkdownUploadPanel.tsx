@@ -15,7 +15,7 @@ export function MarkdownUploadPanel({ viewModel, onUpload, onFileResult }: Markd
     <div className="p-6 space-y-5">
       <div>
         <h2 className="font-rm-trip-heading font-semibold text-rm-trip-text text-base mb-0.5">Upload Markdown</h2>
-        <p className="text-rm-trip-text-muted text-xs">.md / .mdx only · max 10 MB</p>
+        <p className="text-rm-trip-text-muted text-xs">.md / .mdx only | max 10 MB</p>
       </div>
       <div
         className={cn(
@@ -48,7 +48,9 @@ export function MarkdownUploadPanel({ viewModel, onUpload, onFileResult }: Markd
             </div>
             <div>
               <p className="font-semibold text-rm-trip-text text-sm">{viewModel.selectedMd.name}</p>
-              <p className="text-rm-trip-text-muted text-xs mt-0.5">{(viewModel.selectedMd.size / 1024).toFixed(1)} KB</p>
+              <p className="text-rm-trip-text-muted text-xs mt-0.5">
+                {(viewModel.selectedMd.size / 1024).toFixed(1)} KB
+              </p>
             </div>
             <span className="text-xs text-rm-trip-accent font-medium">Click to change file</span>
           </div>
@@ -69,7 +71,7 @@ export function MarkdownUploadPanel({ viewModel, onUpload, onFileResult }: Markd
       {viewModel.mdState === "uploading" && <ProgressBar value={viewModel.mdProgress} color="bg-rm-trip-accent" />}
       {viewModel.mdState === "success" && (
         <SuccessBanner>
-          <p className="text-sm font-semibold text-emerald-800">Markdown ingested successfully</p>
+          <p className="text-sm font-semibold text-emerald-800">Markdown file added</p>
         </SuccessBanner>
       )}
       {viewModel.mdState === "error" && <ErrorBanner msg="Upload failed. See the toast for details." />}
@@ -80,7 +82,7 @@ export function MarkdownUploadPanel({ viewModel, onUpload, onFileResult }: Markd
           className="flex items-center gap-2 bg-rm-trip-accent hover:bg-rm-trip-accent-dark text-white font-semibold py-2.5 px-5 rounded-rm-trip-smooth shadow-rm-trip-card transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
         >
           <Upload className="h-4 w-4" />
-          {viewModel.mdState === "uploading" ? "Processing..." : "Upload & Ingest"}
+          {viewModel.mdState === "uploading" ? "Processing..." : "Upload file"}
         </button>
         {(viewModel.selectedMd || viewModel.mdState !== "idle") && (
           <button

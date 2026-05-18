@@ -40,8 +40,8 @@ export function UploadPage() {
   return (
     <div className="min-h-screen bg-rm-trip-surface">
       <PageHeader
-        title="Ingest Content"
-        subtitle="Add documents and images to your knowledge base."
+        title="Add Content"
+        subtitle="Upload documents, web pages, and images your assistant can use."
       />
       <div className="px-4 py-8 sm:px-8">
         <UploadTabs activeTab={viewModel.activeTab} onChange={viewModel.setActiveTab} />
